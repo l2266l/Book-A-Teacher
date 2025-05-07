@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chat</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #C9E4DE;
+      margin: 0;
+      padding: 20px;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .chat-box {
+      background-color: white;
+      border-radius: 10px;
+      padding: 15px;
+      min-height: 300px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+    }
+
+    .message-input {
+      width: 100%;
+      padding: 10px;
+      font-size: 16px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+
+    .send-button {
+      background-color: #FAEDCB;
+      border: none;
+      padding: 10px 20px;
+      margin-top: 10px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .send-button:hover {
+      background-color: #f0d39f;
+    }
+
+    .go-back-button {
+      background-color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      color: #007ACC;
+      padding: 8px 14px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    .go-back-button:hover {
+      background-color: #d0ebff;
+    }
+
+    h2 {
+      color: #007ACC;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <h2 id="chatTitle">Chat with Teacher</h2>
+    <button class="go-back-button" onclick="goBack()">
+      <span id="goBackBtnText">Go Back</span>
+    </button>
+    <button class="go-back-button" onclick="toggleLanguage()">عربي</button>
+  </div>
+
+  <div class="chat-box" id="chatBox">
+    <p><i id="placeholderMessage">No messages yet.</i></p>
+  </div>
+
+  <input type="text" id="messageInput" class="message-input" placeholder="Type your message..." />
+  <button class="send-button" onclick="sendMessage()" id="sendBtn">Send</button>
+
+  <script>
+    // Block access if not logged in
+    if (!localStorage.getItem('isLoggedIn')) {
+      alert("Please log in first.");
+      window.location.href = "login.html";
+    }
+
+    let currentLanguage = 'en';
+    const translations = {
+      en: {
+        titlePrefix: "Chat with",
+        goBack: "Go Back",
+        send: "Send",
+        placeholder: "Type your message...",
+        noMessages: "No messages yet."
+      },
+      ar: {
+        titlePrefix: "الدردشة مع",
+        goBack: "الرجوع",
+        send: "إرسال",
+        placeholder: "اكتب رسالتك...",
+        noMessages: "لا توجد رسائل بعد."
+      }
+    };
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const teacherName = urlParams.get("teacher") || "Unknown";
+
+    function setupPage() {
+      const t = translations[currentLanguage];
+      document.getElementById("chatTitle").innerText = `${t.titlePrefix} ${teacherName}`;
+      document.getElementById("goBackBtnText").innerText = t.goBack;
+      document.getElementById("sendBtn").innerText = t.send;
+      document.getElementById("messageInput").placeholder = t.placeholder;
+      const placeholder = document.getElementById("placeholderMessage");
+      if (placeholder) placeholder.innerText = t.noMessages;
+
+      saveChatIfNew();
+    }
+
+    function toggleLanguage() {
+      currentLanguage = currentLanguage === 'en' ? 'ar' : 'en';
+      document.documentElement.lang = currentLanguage;
+      document.documentElement.dir = currentLanguage === 'ar' ? 'rtl' : 'ltr';
+      setupPage();
+    }
+
+    function goBack() {
+      window.location.href = "MainChats.html";
+    }
+
+    function sendMessage() {
+      const input = document.getElementById("messageInput");
+      const chatBox = document.getElementById("chatBox");
+      const msg = input.value.trim();
+      if (!msg) return;
+
+      const p = document.createElement("p");
+      p.textContent = msg;
+      chatBox.appendChild(p);
+      input.value = "";
+
+      const placeholder = document.getElementById("placeholderMessage");
+      if (placeholder) placeholder.remove();
+
+      const history = JSON.parse(localStorage.getItem("chatHistory") || "[]");
+      const index = history.findIndex(chat => chat.teacher === teacherName);
+      const now = new Date().toLocaleTimeString();
+
+      if (index !== -1) {
+        history[index].lastMessage = msg;
+        history[index].time = now;
+        history[index].unread = true;
+      } else {
+        history.push({
+          teacher: teacherName,
+          lastMessage: msg,
+          time: now,
+          unread: true
+        });
+      }
+
+      localStorage.setItem("chatHistory", JSON.stringify(history));
+    }
+
+    function saveChatIfNew() {
+      const history = JSON.parse(localStorage.getItem("chatHistory") || "[]");
+      const exists = history.some(chat => chat.teacher === teacherName);
+      if (!exists) {
+        history.push({
+          teacher: teacherName,
+          lastMessage: "",
+          time: new Date().toLocaleTimeString(),
+          unread: false
+        });
+        localStorage.setItem("chatHistory", JSON.stringify(history));
+      }
+    }
+
+    setupPage();
+  </script>
+</body>
+</html>
