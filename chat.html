@@ -73,9 +73,7 @@
 
   <div class="header">
     <h2 id="chatTitle">Chat with Teacher</h2>
-    <button class="go-back-button" onclick="goBack()">
-      <span id="goBackBtnText">Go Back</span>
-    </button>
+    <button class="go-back-button" onclick="goBack()"><span id="goBackBtnText">Go Back</span></button>
     <button class="go-back-button" onclick="toggleLanguage()">عربي</button>
   </div>
 
@@ -87,7 +85,6 @@
   <button class="send-button" onclick="sendMessage()" id="sendBtn">Send</button>
 
   <script>
-    // Block access if not logged in
     if (!localStorage.getItem('isLoggedIn')) {
       alert("Please log in first.");
       window.location.href = "login.html";
@@ -120,72 +117,32 @@
       document.getElementById("goBackBtnText").innerText = t.goBack;
       document.getElementById("sendBtn").innerText = t.send;
       document.getElementById("messageInput").placeholder = t.placeholder;
-      const placeholder = document.getElementById("placeholderMessage");
-      if (placeholder) placeholder.innerText = t.noMessages;
-
-      saveChatIfNew();
+      if (document.getElementById("chatBox").innerText.trim() === "") {
+        document.getElementById("placeholderMessage").innerText = t.noMessages;
+      }
     }
 
     function toggleLanguage() {
       currentLanguage = currentLanguage === 'en' ? 'ar' : 'en';
-      document.documentElement.lang = currentLanguage;
-      document.documentElement.dir = currentLanguage === 'ar' ? 'rtl' : 'ltr';
       setupPage();
     }
 
     function goBack() {
-      window.location.href = "MainChats.html";
+      window.history.back();
     }
 
     function sendMessage() {
       const input = document.getElementById("messageInput");
-      const chatBox = document.getElementById("chatBox");
-      const msg = input.value.trim();
-      if (!msg) return;
-
-      const p = document.createElement("p");
-      p.textContent = msg;
-      chatBox.appendChild(p);
-      input.value = "";
-
-      const placeholder = document.getElementById("placeholderMessage");
-      if (placeholder) placeholder.remove();
-
-      const history = JSON.parse(localStorage.getItem("chatHistory") || "[]");
-      const index = history.findIndex(chat => chat.teacher === teacherName);
-      const now = new Date().toLocaleTimeString();
-
-      if (index !== -1) {
-        history[index].lastMessage = msg;
-        history[index].time = now;
-        history[index].unread = true;
-      } else {
-        history.push({
-          teacher: teacherName,
-          lastMessage: msg,
-          time: now,
-          unread: true
-        });
-      }
-
-      localStorage.setItem("chatHistory", JSON.stringify(history));
-    }
-
-    function saveChatIfNew() {
-      const history = JSON.parse(localStorage.getItem("chatHistory") || "[]");
-      const exists = history.some(chat => chat.teacher === teacherName);
-      if (!exists) {
-        history.push({
-          teacher: teacherName,
-          lastMessage: "",
-          time: new Date().toLocaleTimeString(),
-          unread: false
-        });
-        localStorage.setItem("chatHistory", JSON.stringify(history));
+      const message = input.value.trim();
+      if (message) {
+        const messageElement = document.createElement("p");
+        messageElement.innerText = message;
+        document.getElementById("chatBox").appendChild(messageElement);
+        input.value = "";
       }
     }
 
-    setupPage();
+    window.onload = setupPage;
   </script>
 </body>
 </html>
