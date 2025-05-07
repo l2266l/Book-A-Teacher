@@ -42,8 +42,7 @@
     }
 
     form button,
-    .lang-toggle-btn,
-    .custom-google-btn {
+    .lang-toggle-btn {
       padding: 0.6rem 1.2rem;
       background-color: #FAEDCB;
       color: #333;
@@ -55,8 +54,7 @@
     }
 
     form button:hover,
-    .lang-toggle-btn:hover,
-    .custom-google-btn:hover {
+    .lang-toggle-btn:hover {
       background-color: #e5d7b7;
     }
 
@@ -66,9 +64,8 @@
       color: #666;
     }
 
-    .custom-google-btn {
+    #googleSignInButton {
       margin-top: 1rem;
-      width: 100%;
     }
 
     .signup-link {
@@ -90,30 +87,19 @@
       position: absolute;
       top: 20px;
       right: 20px;
-      padding: 10px;
-      background-color: #FAEDCB;
-      color: #333;
-      border: none;
-      border-radius: 8px;
-      font-weight: bold;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
     }
   </style>
 </head>
 <body>
-  <!-- Language Toggle Button -->
   <button class="lang-toggle-btn" onclick="toggleLanguage()">العربية / English</button>
 
   <div class="login-container">
     <h1 id="title">Parent or Student Login</h1>
 
-    <!-- Google Sign-In Button -->
     <div id="googleSignInButton"></div>
 
     <div class="or-divider" id="orText">or</div>
 
-    <!-- Manual Form Login -->
     <form onsubmit="manualLogin(event)">
       <input type="email" placeholder="Email" id="email" required />
       <input type="password" placeholder="Password" id="password" required />
@@ -121,7 +107,6 @@
       <button type="submit" id="submitBtn">Login</button>
     </form>
 
-    <!-- Don't have an account? Sign up -->
     <div class="signup-link">
       <p>Don't have an account? <a href="signup.html">Sign up</a></p>
     </div>
@@ -155,7 +140,8 @@
     function handleCredentialResponse(response) {
       const idToken = response.credential;
       console.log("Encoded JWT ID token: " + idToken);
-      // You can send this token to your backend server here
+      localStorage.setItem('isLoggedIn', true);
+      window.location.replace("index.html");
     }
 
     function renderGoogleButton() {
@@ -166,25 +152,18 @@
 
       google.accounts.id.renderButton(
         document.getElementById("googleSignInButton"),
-        {
-          theme: "outline",
-          size: "large",
-          type: "standard",
-        }
+        { theme: "outline", size: "large" }
       );
     }
 
-    window.onload = function () {
+    window.onload = () => {
       if (window.google && google.accounts) {
         renderGoogleButton();
-      } else {
-        console.error("Google API failed to load.");
       }
     };
 
     function manualLogin(event) {
       event.preventDefault();
-
       const email = document.getElementById('email').value.trim();
       const password = document.getElementById('password').value.trim();
       const fullName = document.getElementById('fullName').value.trim();
@@ -196,10 +175,8 @@
 
       const user = { email, password, fullName };
       localStorage.setItem('user', JSON.stringify(user));
-
+      localStorage.setItem('isLoggedIn', true);
       alert(currentLang === 'ar' ? 'تم تسجيل الدخول بنجاح!' : 'Login successful!');
-
-      // ✅ Direct redirect to index.html
       window.location.replace('index.html');
     }
   </script>
