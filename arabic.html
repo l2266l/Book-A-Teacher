@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Arabic Teachers</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #C9E4DE;
+      margin: 0;
+      padding: 20px;
+      text-align: center;
+    }
+
+    h1 {
+      color: #007acc;
+      margin-bottom: 30px;
+    }
+
+    .teacher-card {
+      background-color: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      margin: 20px auto;
+      max-width: 500px;
+      text-align: left;
+    }
+
+    .teacher-name {
+      font-size: 1.2em;
+      font-weight: bold;
+      color: #333;
+    }
+
+    .teacher-grade {
+      font-size: 1em;
+      color: #555;
+      margin: 10px 0;
+    }
+
+    .teacher-mode {
+      font-size: 0.9em;
+      color: #777;
+      margin-top: 10px;
+    }
+
+    .chat-button {
+      background-color: #FAEDCB;
+      color: #333;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 1em;
+    }
+
+    .chat-button:hover {
+      background-color: #f0d7a1;
+    }
+
+    .language-toggle {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      padding: 8px 14px;
+      background-color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+      color: #0077cc;
+      box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+      transition: background-color 0.3s;
+    }
+
+    .language-toggle:hover {
+      background-color: #d0ebff;
+    }
+
+    .go-back-button {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      padding: 8px 14px;
+      background-color: #FAEDCB;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      color: #0077cc;
+      cursor: pointer;
+      box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+      transition: background-color 0.3s;
+    }
+
+    .go-back-button:hover {
+      background-color: #d0ebff;
+    }
+  </style>
+</head>
+<body>
+
+  <button class="go-back-button" onclick="goBack()">
+    <span id="goBackBtnText">Go Back</span>
+  </button>
+
+  <button class="language-toggle" onclick="toggleLanguage()" id="langToggleBtn">عربي</button>
+  <h1 id="page-title">Arabic Teachers</h1>
+
+  <div class="teacher-card">
+    <div class="teacher-name" id="teacher1-name">Ms. Ahlam</div>
+    <div class="teacher-grade" id="teacher1-grade">Grade: 6</div>
+    <div class="teacher-mode" id="teacher1-mode">Online & In-Person</div>
+    <button class="chat-button" onclick="startChat('Ms. Ahlam')" id="chat-button-1">Chat</button>
+  </div>
+
+  <div class="teacher-card">
+    <div class="teacher-name" id="teacher2-name">Mr. Youssef</div>
+    <div class="teacher-grade" id="teacher2-grade">Grade: 11</div>
+    <div class="teacher-mode" id="teacher2-mode">Online & In-Person</div>
+    <button class="chat-button" onclick="startChat('Mr. Youssef')" id="chat-button-2">Chat</button>
+  </div>
+
+  <script>
+    let isArabic = false;
+
+    function translateTeacherCard() {
+      document.getElementById("teacher1-name").innerText = isArabic ? "المعلمة احلام" : "Ms. Ahlam";
+      document.getElementById("teacher1-grade").innerText = isArabic ? "الصف: 6" : "Grade: 6";
+      document.getElementById("teacher1-mode").innerText = isArabic ? "عن بعد و حضوري" : "Online & In-Person";
+      document.getElementById("chat-button-1").innerText = isArabic ? "دردشة" : "Chat";
+
+      document.getElementById("teacher2-name").innerText = isArabic ? "الأستاذ يوسف" : "Mr. Youssef";
+      document.getElementById("teacher2-grade").innerText = isArabic ? "الصف: 11" : "Grade: 11";
+      document.getElementById("teacher2-mode").innerText = isArabic ? "عن بعد و حضوري" : "Online & In-Person";
+      document.getElementById("chat-button-2").innerText = isArabic ? "دردشة" : "Chat";
+    }
+
+    function toggleLanguage() {
+      isArabic = !isArabic;
+      document.documentElement.lang = isArabic ? "ar" : "en";
+      document.documentElement.dir = isArabic ? "rtl" : "ltr";
+
+      document.getElementById("langToggleBtn").innerText = isArabic ? "English" : "عربي";
+      document.getElementById("page-title").innerText = isArabic ? "معلمين اللغة العربية" : "Arabic Teachers";
+      document.getElementById("goBackBtnText").innerText = isArabic ? "الرجوع" : "Go Back";
+
+      translateTeacherCard();
+    }
+
+    function startChat(teacherName) {
+      // Save chat to localStorage
+      let chats = JSON.parse(localStorage.getItem("chats")) || [];
+      if (!chats.includes(teacherName)) {
+        chats.push(teacherName);
+        localStorage.setItem("chats", JSON.stringify(chats));
+      }
+
+      // Go to chat page
+      window.location.href = `chat.html?teacher=${encodeURIComponent(teacherName)}`;
+    }
+
+    function goBack() {
+      window.location.href = "all-subjects.html";
+    }
+
+    translateTeacherCard(); // Initial run
+  </script>
+
+</body>
+</html>

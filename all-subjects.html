@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>All Subjects</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #C9E4DE;
+      margin: 0;
+      padding: 20px;
+      text-align: center;
+    }
+
+    h1 {
+      margin-bottom: 30px;
+      color: #007acc;
+    }
+
+    .subject-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      max-width: 900px;
+      margin: auto;
+    }
+
+    .subject-card {
+      background-color: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      font-weight: bold;
+      text-decoration: none;
+      color: #007acc;
+      transition: background-color 0.3s;
+    }
+
+    .subject-card:hover {
+      background-color: #b5d4ca;
+    }
+
+    .language-toggle,
+    .back-button {
+      position: absolute;
+      top: 20px;
+      padding: 8px 14px;
+      background-color: #FAEDCB;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+      color: #0077cc;
+      box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+      transition: background-color 0.3s;
+      text-decoration: none;
+    }
+
+    .language-toggle:hover,
+    .back-button:hover {
+      background-color: #e9d5a8;
+    }
+
+    .language-toggle {
+      right: 20px;
+    }
+
+    .back-button {
+      left: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Go Back Button -->
+  <a href="index.html" class="back-button" id="backBtn">← Go Back</a>
+
+  <!-- Language toggle -->
+  <button class="language-toggle" onclick="toggleLanguage()" id="langToggleBtn">عربي</button>
+
+  <h1 id="page-title">Subjects</h1>
+
+  <div class="subject-grid">
+    <a href="physics.html" class="subject-card" id="physics">Physics</a>
+    <a href="mathematics.html" class="subject-card" id="mathematics">Mathematics</a>
+    <a href="biology.html" class="subject-card" id="biology">Biology</a>
+    <a href="chemistry.html" class="subject-card" id="chemistry">Chemistry</a>
+    <a href="science.html" class="subject-card" id="science">Science</a>
+    <a href="arabic.html" class="subject-card" id="arabic">Arabic</a>
+    <a href="english.html" class="subject-card" id="english">English</a>
+    <a href="french.html" class="subject-card" id="french">French</a>
+    <a href="chinese.html" class="subject-card" id="chinese">Chinese</a>
+    <a href="islamic-studies.html" class="subject-card" id="islamic">Islamic Studies</a>
+  </div>
+
+  <script>
+    let isArabic = false;
+
+    function toggleLanguage() {
+      isArabic = !isArabic;
+      document.documentElement.lang = isArabic ? "ar" : "en";
+      document.documentElement.dir = isArabic ? "rtl" : "ltr";
+
+      document.getElementById("langToggleBtn").innerText = isArabic ? "English" : "عربي";
+      document.getElementById("page-title").innerText = isArabic ? "المواد الدراسية" : "Subjects";
+      document.getElementById("backBtn").innerText = isArabic ? "← العودة" : "← Go Back";
+
+      document.getElementById("physics").innerText = isArabic ? "الفيزياء" : "Physics";
+      document.getElementById("mathematics").innerText = isArabic ? "الرياضيات" : "Mathematics";
+      document.getElementById("biology").innerText = isArabic ? "الأحياء" : "Biology";
+      document.getElementById("chemistry").innerText = isArabic ? "الكيمياء" : "Chemistry";
+      document.getElementById("science").innerText = isArabic ? "العلوم" : "Science";
+      document.getElementById("arabic").innerText = isArabic ? "اللغة العربية" : "Arabic";
+      document.getElementById("english").innerText = isArabic ? "اللغة الإنجليزية" : "English";
+      document.getElementById("french").innerText = isArabic ? "اللغة الفرنسية" : "French";
+      document.getElementById("chinese").innerText = isArabic ? "اللغة الصينية" : "Chinese";
+      document.getElementById("islamic").innerText = isArabic ? "الدراسات الإسلامية" : "Islamic Studies";
+    }
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Science Teachers</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #C9E4DE;
+      margin: 0;
+      padding: 20px;
+      text-align: center;
+    }
+
+    h1 {
+      color: #007acc;
+      margin-bottom: 30px;
+    }
+
+    .teacher-card {
+      background-color: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      margin: 20px auto;
+      max-width: 500px;
+      text-align: left;
+    }
+
+    .teacher-name {
+      font-size: 1.2em;
+      font-weight: bold;
+      color: #333;
+    }
+
+    .teacher-grade {
+      font-size: 1em;
+      color: #555;
+      margin: 10px 0;
+    }
+
+    .teacher-mode {
+      font-size: 1em;
+      color: #777;
+      margin: 10px 0;
+    }
+
+    .chat-button {
+      background-color: #FAEDCB;
+      color: black;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 1em;
+    }
+
+    .chat-button:hover {
+      background-color: #f1d5a7;
+    }
+
+    .language-toggle {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      padding: 8px 14px;
+      background-color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+      color: #0077cc;
+      box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+      transition: background-color 0.3s;
+    }
+
+    .language-toggle:hover {
+      background-color: #d0ebff;
+    }
+
+    .go-back-button {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      padding: 8px 14px;
+      background-color: #FAEDCB;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      color: #0077cc;
+      cursor: pointer;
+      box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+      transition: background-color 0.3s;
+    }
+
+    .go-back-button:hover {
+      background-color: #d0ebff;
+    }
+  </style>
+</head>
+<body>
+
+  <button class="go-back-button" onclick="goBack()">
+    <span id="goBackBtnText">Go Back</span>
+  </button>
+
+  <button class="language-toggle" onclick="toggleLanguage()" id="langToggleBtn">عربي</button>
+  <h1 id="page-title">Science Teachers</h1>
+
+  <!-- Teacher Cards -->
+  <div class="teacher-card">
+    <div class="teacher-name" id="teacher1-name">Ms. Dana</div>
+    <div class="teacher-grade" id="teacher1-grade">Grade: 7</div>
+    <div class="teacher-mode" id="teacher1-mode">Online & In-person</div>
+    <button class="chat-button" onclick="startChat('Dana')" id="chat-button-1">Chat</button>
+  </div>
+
+  <div class="teacher-card">
+    <div class="teacher-name" id="teacher2-name">Mr. Hisham</div>
+    <div class="teacher-grade" id="teacher2-grade">Grade: 4</div>
+    <div class="teacher-mode" id="teacher2-mode">Online & In-person</div>
+    <button class="chat-button" onclick="startChat('Hisham')" id="chat-button-2">Chat</button>
+  </div>
+
+  <div class="teacher-card">
+    <div class="teacher-name" id="teacher3-name">Ms. Sara</div>
+    <div class="teacher-grade" id="teacher3-grade">Grade: 8</div>
+    <div class="teacher-mode" id="teacher3-mode">Online & In-person</div>
+    <button class="chat-button" onclick="startChat('Sara')" id="chat-button-3">Chat</button>
+  </div>
+
+  <div class="teacher-card">
+    <div class="teacher-name" id="teacher4-name">Mr. Khaled</div>
+    <div class="teacher-grade" id="teacher4-grade">Grade: 9</div>
+    <div class="teacher-mode" id="teacher4-mode">Online & In-person</div>
+    <button class="chat-button" onclick="startChat('Khaled')" id="chat-button-4">Chat</button>
+  </div>
+
+  <script>
+    let isArabic = false;
+
+    function toggleLanguage() {
+      isArabic = !isArabic;
+      document.documentElement.lang = isArabic ? "ar" : "en";
+      document.documentElement.dir = isArabic ? "rtl" : "ltr";
+
+      document.getElementById("langToggleBtn").innerText = isArabic ? "English" : "عربي";
+      document.getElementById("page-title").innerText = isArabic ? "معلمين العلوم" : "Science Teachers";
+      document.getElementById("goBackBtnText").innerText = isArabic ? "الرجوع" : "Go Back";
+
+      document.getElementById("teacher1-name").innerText = isArabic ? "المعلمة دانة" : "Ms. Dana";
+      document.getElementById("teacher1-grade").innerText = isArabic ? "الصف: 7" : "Grade: 7";
+      document.getElementById("teacher1-mode").innerText = isArabic ? "عن بعد و حضوري" : "Online & In-person";
+      document.getElementById("chat-button-1").innerText = isArabic ? "محادثة" : "Chat";
+
+      document.getElementById("teacher2-name").innerText = isArabic ? "الأستاذ هشام" : "Mr. Hisham";
+      document.getElementById("teacher2-grade").innerText = isArabic ? "الصف: 4" : "Grade: 4";
+      document.getElementById("teacher2-mode").innerText = isArabic ? "عن بعد و حضوري" : "Online & In-person";
+      document.getElementById("chat-button-2").innerText = isArabic ? "محادثة" : "Chat";
+
+      document.getElementById("teacher3-name").innerText = isArabic ? "المعلمة سارة" : "Ms. Sara";
+      document.getElementById("teacher3-grade").innerText = isArabic ? "الصف: 8" : "Grade: 8";
+      document.getElementById("teacher3-mode").innerText = isArabic ? "عن بعد و حضوري" : "Online & In-person";
+      document.getElementById("chat-button-3").innerText = isArabic ? "محادثة" : "Chat";
+
+      document.getElementById("teacher4-name").innerText = isArabic ? "الأستاذ خالد" : "Mr. Khaled";
+      document.getElementById("teacher4-grade").innerText = isArabic ? "الصف: 9" : "Grade: 9";
+      document.getElementById("teacher4-mode").innerText = isArabic ? "عن بعد و حضوري" : "Online & In-person";
+      document.getElementById("chat-button-4").innerText = isArabic ? "محادثة" : "Chat";
+    }
+
+    function startChat(name) {
+      // Save to MainChats.html via localStorage
+      const existingChats = JSON.parse(localStorage.getItem("chats")) || [];
+      if (!existingChats.includes(name)) {
+        existingChats.push(name);
+        localStorage.setItem("chats", JSON.stringify(existingChats));
+      }
+
+      // Redirect to chat.html with teacher name
+      const encodedName = encodeURIComponent(name);
+      window.location.href = `chat.html?teacher=${encodedName}`;
+    }
+
+    function goBack() {
+      window.location.href = "all-subjects.html";
+    }
+
+    // Initial render
+    toggleLanguage(); // Sets default language once
+    toggleLanguage(); // Reverts to English unless user toggles
+  </script>
+</body>
+</html>

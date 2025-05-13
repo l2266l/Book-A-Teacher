@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Chemistry Teachers</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #C9E4DE;
+      margin: 0;
+      padding: 20px;
+      text-align: center;
+    }
+
+    h1 {
+      color: #007acc;
+      margin-bottom: 30px;
+    }
+
+    .teacher-card {
+      background-color: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      margin: 20px auto;
+      max-width: 500px;
+      text-align: left;
+    }
+
+    .teacher-name {
+      font-size: 1.2em;
+      font-weight: bold;
+      color: #333;
+    }
+
+    .teacher-grade,
+    .teacher-mode {
+      font-size: 1em;
+      color: #555;
+      margin: 10px 0;
+    }
+
+    .teacher-mode {
+      color: #777;
+    }
+
+    .chat-button {
+      background-color: #FAEDCB;
+      color: #333;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 1em;
+      font-weight: bold;
+    }
+
+    .chat-button:hover {
+      background-color: #f4dfb0;
+    }
+
+    .language-toggle,
+    .go-back-button {
+      position: absolute;
+      padding: 8px 14px;
+      background-color: #FAEDCB;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+      transition: background-color 0.3s;
+    }
+
+    .language-toggle {
+      top: 20px;
+      right: 20px;
+      color: #333;
+    }
+
+    .go-back-button {
+      top: 20px;
+      left: 20px;
+      color: #007ACC; /* Text color updated */
+    }
+
+    .language-toggle:hover,
+    .go-back-button:hover {
+      background-color: #f4dfb0;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Go Back Button -->
+  <button class="go-back-button" onclick="goBack()">
+    <span id="goBackBtnText">Go Back</span>
+  </button>
+
+  <!-- Language Toggle -->
+  <button class="language-toggle" onclick="toggleLanguage()" id="langToggleBtn">عربي</button>
+
+  <!-- Page Title -->
+  <h1 id="page-title">Chemistry Teachers</h1>
+
+  <!-- Teacher 1 -->
+  <div class="teacher-card">
+    <div class="teacher-name" id="teacher1-name">Ms. Amina Khalid</div>
+    <div class="teacher-grade" id="teacher1-grade">Grade: 10</div>
+    <div class="teacher-mode" id="teacher1-mode">Mode: Online & In-person</div>
+    <button class="chat-button" onclick="bookAppointment('Amina Khalid')" id="chat-button-1">Book</button>
+  </div>
+
+  <!-- Teacher 2 -->
+  <div class="teacher-card">
+    <div class="teacher-name" id="teacher2-name">Mr. Tariq Al-Nuaimi</div>
+    <div class="teacher-grade" id="teacher2-grade">Grade: 11</div>
+    <div class="teacher-mode" id="teacher2-mode">Mode: Online & In-person</div>
+    <button class="chat-button" onclick="bookAppointment('Tariq Al-Nuaimi')" id="chat-button-2">Book</button>
+  </div>
+
+  <script>
+    let isArabic = false;
+
+    function translateTeacherCard() {
+      document.getElementById("teacher1-name").innerText = isArabic ? "المعلمة أمينة خالد" : "Ms. Amina Khalid";
+      document.getElementById("teacher1-grade").innerText = isArabic ? "الصف: 10" : "Grade: 10";
+      document.getElementById("teacher1-mode").innerText = isArabic ? "عن بعد و حضوري" : "Online & In-person";
+      document.getElementById("chat-button-1").innerText = isArabic ? "حجز" : "Book";
+
+      document.getElementById("teacher2-name").innerText = isArabic ? "الأستاذ طارق النعيمي" : "Mr. Tariq Al-Nuaimi";
+      document.getElementById("teacher2-grade").innerText = isArabic ? "الصف: 11" : "Grade: 11";
+      document.getElementById("teacher2-mode").innerText = isArabic ? "عن بعد و حضوري" : "Online & In-person";
+      document.getElementById("chat-button-2").innerText = isArabic ? "حجز" : "Book";
+    }
+
+    function toggleLanguage() {
+      isArabic = !isArabic;
+      document.documentElement.lang = isArabic ? "ar" : "en";
+      document.documentElement.dir = isArabic ? "rtl" : "ltr";
+
+      document.getElementById("langToggleBtn").innerText = isArabic ? "English" : "عربي";
+      document.getElementById("page-title").innerText = isArabic ? "معلمين الكيمياء" : "Chemistry Teachers";
+      document.getElementById("goBackBtnText").innerText = isArabic ? "الرجوع" : "Go Back";
+
+      translateTeacherCard();
+    }
+
+    function bookAppointment(name) {
+      window.location.href = "booking-method.html?teacher=" + encodeURIComponent(name);
+    }
+
+    function goBack() {
+      window.location.href = "all-subjects.html";
+    }
+
+    // Apply initial translation
+    translateTeacherCard();
+  </script>
+
+</body>
+</html>

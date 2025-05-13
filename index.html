@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title id="title">Book A Teacher</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #C9E4DE;
+      color: #333;
+    }
+
+    .header {
+      background-color: white;
+      padding: 15px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .logo {
+      font-size: 22px;
+      font-weight: bold;
+      color: #3a3a3a;
+      cursor: pointer;
+    }
+
+    .top-buttons button {
+      margin-left: 10px;
+      padding: 10px 18px;
+      font-size: 14px;
+      background-color: #FAEDCB;
+      color: #3a3a3a;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .top-buttons button:hover {
+      background-color: #e5d5b8;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 40px auto;
+      padding: 20px;
+      text-align: center;
+    }
+
+    h1 {
+      color: #3a3a3a;
+      margin-bottom: 20px;
+    }
+
+    .search-bar {
+      width: 100%;
+      max-width: 500px;
+      padding: 14px;
+      font-size: 16px;
+      border: none;
+      border-radius: 10px;
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+      margin-bottom: 25px;
+    }
+
+    .info-text {
+      font-size: 18px;
+      margin-bottom: 40px;
+    }
+
+    .teachers {
+      display: flex;
+      justify-content: center;
+      gap: 25px;
+      flex-wrap: wrap;
+    }
+
+    .teacher-card {
+      background-color: white;
+      padding: 20px;
+      border-radius: 16px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      width: 250px;
+      transition: transform 0.2s ease;
+    }
+
+    .teacher-card:hover {
+      transform: translateY(-5px);
+    }
+
+    .teacher-card h3 {
+      font-size: 20px;
+      color: #3a3a3a;
+      margin-bottom: 8px;
+    }
+
+    .teacher-card p {
+      margin: 5px 0;
+      font-size: 14px;
+      color: #555;
+    }
+
+    .chat-btn {
+      margin-top: 12px;
+      background-color: #FAEDCB;
+      color: #3a3a3a;
+      border: none;
+      padding: 10px 20px;
+      font-size: 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .chat-btn:hover {
+      background-color: #e5d5b8;
+    }
+
+    .view-more {
+      margin: 40px auto;
+      background-color: #FAEDCB;
+      color: #3a3a3a;
+      border: none;
+      padding: 14px 28px;
+      font-size: 16px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .view-more:hover {
+      background-color: #e5d5b8;
+    }
+
+    .subjects {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 15px;
+      margin-top: 30px;
+    }
+
+    .subject-btn {
+      background-color: white;
+      border: 2px solid #3a3a3a;
+      color: #3a3a3a;
+      padding: 10px 18px;
+      border-radius: 10px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .subject-btn:hover {
+      background-color: #3a3a3a;
+      color: white;
+    }
+  </style>
+
+  <script>
+    // Toggle language between English and Arabic
+    function toggleLanguage() {
+      const isEnglish = document.documentElement.lang === 'en';
+      document.documentElement.lang = isEnglish ? 'ar' : 'en';
+      document.documentElement.dir = isEnglish ? 'rtl' : 'ltr';
+
+      document.getElementById('title').innerText = isEnglish ? 'احجز معلم' : 'Book A Teacher';
+      document.getElementById('mainHeading').innerText = isEnglish
+        ? 'ابحث عن أفضل المعلمين لأي مادة'
+        : 'Find the Best Teachers for Any Subject';
+      document.getElementById('info').innerText = isEnglish
+        ? 'الآن يمكنك حجز دروسك الخصوصية بسهولة في احجز معلم!'
+        : 'Now you can book your private lessons easily in Book A Teacher!';
+      document.getElementById('searchInput').placeholder = isEnglish
+        ? 'ابحث عن معلم...'
+        : 'Search for a teacher...';
+
+      document.getElementById('btn-login').innerText = isEnglish ? 'تسجيل الدخول' : 'Login';
+      document.getElementById('btn-signin').innerText = isEnglish ? 'التسجيل' : 'Sign Up';
+      document.getElementById('btn-chats').innerText = isEnglish ? 'الدردشات' : 'Chats';
+      document.getElementById('viewMoreTeachers').innerText = isEnglish ? 'عرض المزيد' : 'View More';
+      document.getElementById('viewMoreSubjects').innerText = isEnglish ? 'عرض المزيد' : 'View More';
+      document.getElementById('subjectTitle').innerText = isEnglish ? 'المواد' : 'Subjects';
+
+      document.getElementById('teacher1-name').innerText = isEnglish ? 'المعلمة عائشة' : 'Ms. Ayesha';
+      document.getElementById('teacher1-subject').innerText = isEnglish ? 'دراسات إسلامية' : 'Islamic Studies';
+      document.getElementById('teacher1-mode').innerText = isEnglish ? 'عن بعد و حضورياً' : 'Online & in-person';
+
+      document.getElementById('teacher2-name').innerText = isEnglish ? 'الأستاذ خالد' : 'Mr. Khaled';
+      document.getElementById('teacher2-subject').innerText = isEnglish ? 'الفيزياء' : 'Physics';
+      document.getElementById('teacher2-mode').innerText = isEnglish ? 'عن بعد و حضورياً' : 'Online & in-person';
+
+      document.getElementById('teacher3-name').innerText = isEnglish ? 'المعلمة لينا' : 'Ms. Lina';
+      document.getElementById('teacher3-subject').innerText = isEnglish ? 'اللغة الإنجليزية' : 'English';
+      document.getElementById('teacher3-mode').innerText = isEnglish ? 'عن بعد و حضورياً' : 'Online & in-person';
+
+      const subjects = {
+        physics: isEnglish ? 'الفيزياء' : 'Physics',
+        biology: isEnglish ? 'الأحياء' : 'Biology',
+        chemistry: isEnglish ? 'الكيمياء' : 'Chemistry',
+        english: isEnglish ? 'اللغة الإنجليزية' : 'English',
+        arabic: isEnglish ? 'اللغة العربية' : 'Arabic',
+        math: isEnglish ? 'الرياضيات' : 'Math'
+      };
+
+      document.querySelectorAll('.subject-btn').forEach(button => {
+        const id = button.getAttribute('data-id');
+        if (subjects[id]) {
+          button.innerText = subjects[id];
+        }
+      });
+
+      document.querySelectorAll('.chat-btn').forEach(button => {
+        button.innerText = isEnglish ? 'الدردشة' : 'Chat';
+      });
+    }
+
+    // Filter teachers dynamically as user types in the search bar
+    function filterTeachers() {
+      const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+      const teachers = document.querySelectorAll('.teacher-card');
+      teachers.forEach(teacher => {
+        const teacherName = teacher.querySelector('h3').innerText.toLowerCase();
+        if (teacherName.includes(searchTerm)) {
+          teacher.style.display = 'block';
+        } else {
+          teacher.style.display = 'none';
+        }
+      });
+    }
+
+    // Check if user is logged in and update UI accordingly
+    function checkLoginStatus() {
+      const isLoggedIn = localStorage.getItem('isLoggedIn');
+      if (isLoggedIn) {
+        document.getElementById('btn-signin').style.display = 'none';
+        document.getElementById('btn-login').style.display = 'none';
+      }
+    }
+
+    // Redirect to bookings page based on user type
+    function redirectToBookings() {
+  const isLoggedIn = localStorage.getItem('isLoggedIn');
+  const userType = localStorage.getItem('userType'); // Assuming userType is stored in localStorage as 'teacher' or 'parent/student'
+
+  if (isLoggedIn) {
+    if (userType === 'teacher') {
+      window.location.href = 'pages/MyBookings.html'; // Correct path to teacher's bookings page
+    } else {
+      window.location.href = 'pages/MyBookings-Student.html'; // Correct path to parent/student bookings page
+    }
+  } else {
+    alert("You need to be logged in to access bookings.");
+    window.location.href = 'login.html'; // Correct path to login page
+  }
+}
+
+    window.onload = checkLoginStatus;
+</script>
+</head>
+<body>
+  <div class="header">
+    <div class="logo" id="title" onclick="location.href='index.html'">Book A Teacher</div>
+    <div class="top-buttons">
+  <button id="btn-signin" onclick="location.href='signup.html'">Sign Up</button>
+  <button id="btn-login" onclick="location.href='login.html'">Login</button>
+  <button id="btn-chats" onclick="location.href='MainChats.html'">Chats</button>
+  <button id="btn-bookings" onclick="redirectToBookings()">Bookings</button> <!-- Add this line -->
+  <button onclick="toggleLanguage()">🌐</button>
+</div>
+  </div>
+
+  <div class="container">
+    <h1 id="mainHeading">Find the Best Teachers for Any Subject</h1>
+    <input type="text" class="search-bar" id="searchInput" placeholder="Search for a teacher..." onkeyup="filterTeachers()">
+    <p class="info-text" id="info">Now you can book your private lessons easily in Book A Teacher!</p>
+
+    <div class="teachers">
+      <div class="teacher-card">
+        <h3 id="teacher1-name">Ms. Ayesha</h3>
+        <p id="teacher1-subject">Islamic Studies</p>
+        <p id="teacher1-mode">Online & in-person</p>
+        <button class="chat-btn" onclick="location.href='chat.html'">Chat</button>
+      </div>
+      <div class="teacher-card">
+        <h3 id="teacher2-name">Mr. Khaled</h3>
+        <p id="teacher2-subject">Physics</p>
+        <p id="teacher2-mode">Online & in-person</p>
+        <button class="chat-btn" onclick="location.href='chat.html'">Chat</button>
+      </div>
+      <div class="teacher-card">
+        <h3 id="teacher3-name">Ms. Lina</h3>
+        <p id="teacher3-subject">English</p>
+        <p id="teacher3-mode">Online & in-person</p>
+        <button class="chat-btn" onclick="location.href='chat.html'">Chat</button>
+      </div>
+    </div>
+
+   <button class="view-more" id="viewMoreTeachers" onclick="location.href='all-teachers.html'">View More</button>
+
+    <h2 id="subjectTitle" style="margin-top: 60px;">Subjects</h2>
+    <div class="subjects">
+      <button class="subject-btn" data-id="physics">Physics</button>
+      <button class="subject-btn" data-id="biology">Biology</button>
+      <button class="subject-btn" data-id="chemistry">Chemistry</button>
+      <button class="subject-btn" data-id="english">English</button>
+      <button class="subject-btn" data-id="arabic">Arabic</button>
+      <button class="subject-btn" data-id="math">Math</button>
+    </div>
+    <button class="view-more" id="viewMoreSubjects" style="margin-top: 30px;" onclick="location.href='all-subjects.html'">View More</button>
+  </div>
+</body>
+</html> 
