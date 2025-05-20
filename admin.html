@@ -169,18 +169,16 @@
       teachers[index].approved = true;
       localStorage.setItem("teachers", JSON.stringify(teachers));
 
-      // Update approved count (teachers who are approved)
+      // Update approved count
       const approvedCount = teachers.filter(t => t.approved).length;
       localStorage.setItem("teacherCount", approvedCount);
 
       alert("Teacher approved!");
       renderTeachers();
-      // Update displayed teacher count
       document.getElementById("teacherCount").innerText = approvedCount;
     }
 
     renderTeachers();
   </script>
-
 </body>
 </html>
