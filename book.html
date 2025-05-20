@@ -10,6 +10,7 @@
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       margin: 0;
       padding: 0;
+      direction: ltr;
     }
 
     .container {
@@ -29,6 +30,20 @@
       font-weight: bold;
       text-align: center;
       border-radius: 20px 20px 0 0;
+    }
+
+    .lang-switch {
+      text-align: right;
+      margin: 10px;
+    }
+
+    .lang-switch button {
+      background-color: #FAEDCB;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: bold;
     }
 
     label {
@@ -88,11 +103,15 @@
   </style>
 </head>
 <body>
+  <div class="lang-switch">
+    <button onclick="toggleLanguage()">🌐 Toggle Language</button>
+  </div>
+
   <div class="container">
-    <div class="header">📘 Book a Lesson</div>
+    <div class="header" id="headerTitle">📘 Book a Lesson</div>
 
     <div class="form-section" id="bookingForm">
-      <label for="duration">💰 Price List:</label>
+      <label for="duration" data-en="💰 Price List:" data-ar="💰 قائمة الأسعار:">💰 Price List:</label>
       <select id="duration" onchange="updatePrice()">
         <option value="60">60 Minutes - AED 125</option>
         <option value="90">90 Minutes - AED 150</option>
@@ -100,13 +119,13 @@
       </select>
       <div class="price-tag" id="priceDisplay">AED 125</div>
 
-      <label for="lessonDate">📅 Select Date:</label>
+      <label for="lessonDate" data-en="📅 Select Date:" data-ar="📅 اختر التاريخ:">📅 Select Date:</label>
       <input type="date" id="lessonDate" />
 
-      <label for="lessonTime">🕒 Select Time:</label>
+      <label for="lessonTime" data-en="🕒 Select Time:" data-ar="🕒 اختر الوقت:">🕒 Select Time:</label>
       <input type="time" id="lessonTime" />
 
-      <label for="sessionType">📍 Session Type:</label>
+      <label for="sessionType" data-en="📍 Session Type:" data-ar="📍 نوع الجلسة:">📍 Session Type:</label>
       <select id="sessionType" onchange="toggleSessionOptions()">
         <option value="">Choose</option>
         <option value="online">Online 📱</option>
@@ -114,13 +133,13 @@
       </select>
 
       <div id="locationDiv" class="hidden">
-        <label for="locationLink">📍 Drop Your Location Link:</label>
+        <label for="locationLink" data-en="📍 Drop Your Location Link:" data-ar="📍 ضع رابط موقعك:">📍 Drop Your Location Link:</label>
         <input type="text" id="locationLink" placeholder="Paste location link here" />
 
-        <label for="schoolName">🏫 School Name:</label>
+        <label for="schoolName" data-en="🏫 School Name:" data-ar="🏫 اسم المدرسة:">🏫 School Name:</label>
         <input type="text" id="schoolName" placeholder="Enter school name" />
 
-        <label for="paymentMethod">💳 Payment Method:</label>
+        <label for="paymentMethod" data-en="💳 Payment Method:" data-ar="💳 طريقة الدفع:">💳 Payment Method:</label>
         <select id="paymentMethod" onchange="handlePaymentMethod()">
           <option value="">Choose</option>
           <option value="cash">Cash 💰</option>
@@ -133,7 +152,7 @@
         <p><strong>🔢 IBAN:</strong> <span id="ibanNumber">—</span></p>
       </div>
 
-      <button onclick="confirmBooking()">✅ Confirm Booking</button>
+      <button onclick="confirmBooking()" id="confirmBtn">✅ Confirm Booking</button>
     </div>
 
     <div id="whatsappContact" class="whatsapp-message hidden"></div>
@@ -238,10 +257,26 @@
       }
     }
 
+    function toggleLanguage() {
+      const currentDir = document.body.style.direction || 'ltr';
+      const newDir = currentDir === 'rtl' ? 'ltr' : 'rtl';
+      document.body.style.direction = newDir;
+
+      const labels = document.querySelectorAll("label, .header, #confirmBtn");
+      labels.forEach(el => {
+        const newText = newDir === 'rtl' ? el.dataset.ar : el.dataset.en;
+        if (newText) el.textContent = newText;
+      });
+
+      document.getElementById("headerTitle").textContent = newDir === 'rtl' ? "📘 احجز درس" : "📘 Book a Lesson";
+      document.getElementById("confirmBtn").textContent = newDir === 'rtl' ? "✅ تأكيد الحجز" : "✅ Confirm Booking";
+    }
+
     updatePrice();
     checkBookingStatus();
     setInterval(checkBookingStatus, 60000);
   </script>
 </body>
 </html>
+
 
