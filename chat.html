@@ -22,23 +22,34 @@
       padding: 20px;
     }
 
-    .form-section label {
+    .header {
+      background-color: #FAEDCB;
+      padding: 18px;
+      font-size: 22px;
+      font-weight: bold;
+      text-align: center;
+      border-radius: 20px 20px 0 0;
+    }
+
+    label {
       font-weight: bold;
       margin-top: 15px;
       display: block;
     }
 
-    .form-section select,
-    .form-section input[type="text"] {
+    select,
+    input[type="text"],
+    input[type="date"],
+    input[type="time"] {
       width: 100%;
       padding: 12px;
-      margin-top: 5px;
+      margin-top: 6px;
       border-radius: 12px;
       border: 1px solid #CCC;
       font-size: 14px;
     }
 
-    .form-section button {
+    button {
       background-color: #FAEDCB;
       color: black;
       border: none;
@@ -51,7 +62,7 @@
       width: 100%;
     }
 
-    .form-section .hidden {
+    .hidden {
       display: none;
     }
 
@@ -68,23 +79,32 @@
       color: green;
       font-weight: bold;
     }
+
+    .price-tag {
+      font-weight: bold;
+      color: #007B5E;
+      margin-top: 8px;
+    }
   </style>
 </head>
 <body>
   <div class="container">
+    <div class="header">📘 Book a Lesson</div>
+
     <div class="form-section" id="bookingForm">
-      <label for="duration">⏱️ Duration:</label>
-      <select id="duration">
-        <option value="60">60 Minutes</option>
-        <option value="120">120 Minutes</option>
-        <option value="180">180 Minutes</option>
+      <label for="duration">💰 Price List:</label>
+      <select id="duration" onchange="updatePrice()">
+        <option value="60">60 Minutes - AED 125</option>
+        <option value="90">90 Minutes - AED 150</option>
+        <option value="120">120 Minutes - AED 175</option>
       </select>
+      <div class="price-tag" id="priceDisplay">AED 125</div>
 
       <label for="lessonDate">📅 Select Date:</label>
-      <select id="lessonDate" onchange="updateTimes()"></select>
+      <input type="date" id="lessonDate" />
 
       <label for="lessonTime">🕒 Select Time:</label>
-      <select id="lessonTime"></select>
+      <input type="time" id="lessonTime" />
 
       <label for="sessionType">📍 Session Type:</label>
       <select id="sessionType" onchange="toggleSessionOptions()">
@@ -95,7 +115,10 @@
 
       <div id="locationDiv" class="hidden">
         <label for="locationLink">📍 Drop Your Location Link:</label>
-        <input type="text" id="locationLink" placeholder="Paste location link here">
+        <input type="text" id="locationLink" placeholder="Paste location link here" />
+
+        <label for="schoolName">🏫 School Name:</label>
+        <input type="text" id="schoolName" placeholder="Enter school name" />
 
         <label for="paymentMethod">💳 Payment Method:</label>
         <select id="paymentMethod" onchange="handlePaymentMethod()">
@@ -110,21 +133,28 @@
         <p><strong>🔢 IBAN:</strong> <span id="ibanNumber">—</span></p>
       </div>
 
-      <button onclick="confirmBooking()">Confirm Booking ✅</button>
+      <button onclick="confirmBooking()">✅ Confirm Booking</button>
     </div>
 
     <div id="whatsappContact" class="whatsapp-message hidden"></div>
   </div>
 
   <script>
-    let bookingEndTime = null;
+    const priceMap = {
+      "60": 125,
+      "90": 150,
+      "120": 175
+    };
+
+    function updatePrice() {
+      const duration = document.getElementById("duration").value;
+      document.getElementById("priceDisplay").textContent = "AED " + priceMap[duration];
+    }
 
     function toggleSessionOptions() {
       const sessionType = document.getElementById('sessionType').value;
       const locationDiv = document.getElementById('locationDiv');
       const cardPaymentDiv = document.getElementById('cardPaymentDiv');
-      const bankName = document.getElementById('bankName');
-      const ibanNumber = document.getElementById('ibanNumber');
 
       if (sessionType === "in-person") {
         locationDiv.classList.remove("hidden");
@@ -132,8 +162,8 @@
       } else if (sessionType === "online") {
         locationDiv.classList.add("hidden");
         cardPaymentDiv.classList.remove("hidden");
-        bankName.textContent = "Teacher Bank";
-        ibanNumber.textContent = "AE000000000000000000000";
+        document.getElementById("bankName").textContent = "Teacher Bank";
+        document.getElementById("ibanNumber").textContent = "AE000000000000000000000";
       } else {
         locationDiv.classList.add("hidden");
         cardPaymentDiv.classList.add("hidden");
@@ -143,77 +173,56 @@
     function handlePaymentMethod() {
       const method = document.getElementById('paymentMethod').value;
       const cardPaymentDiv = document.getElementById('cardPaymentDiv');
-      const bankName = document.getElementById('bankName');
-      const ibanNumber = document.getElementById('ibanNumber');
       if (method === "card") {
         cardPaymentDiv.classList.remove("hidden");
-        bankName.textContent = "Teacher Bank";
-        ibanNumber.textContent = "AE000000000000000000000";
+        document.getElementById("bankName").textContent = "Teacher Bank";
+        document.getElementById("ibanNumber").textContent = "AE000000000000000000000";
       } else {
         cardPaymentDiv.classList.add("hidden");
       }
     }
 
-    function updateTimes() {
-      const timeSelect = document.getElementById('lessonTime');
-      timeSelect.innerHTML = "";
-      const times = ["10:00 AM", "12:00 PM", "2:00 PM", "4:00 PM", "6:00 PM"];
-      times.forEach(time => {
-        const opt = document.createElement("option");
-        opt.value = time;
-        opt.textContent = time;
-        timeSelect.appendChild(opt);
-      });
-    }
-
-    function populateDates() {
-      const dateSelect = document.getElementById("lessonDate");
-      dateSelect.innerHTML = "";
-      const today = new Date();
-      for (let i = 0; i < 7; i++) {
-        const date = new Date(today);
-        date.setDate(today.getDate() + i);
-        const option = document.createElement("option");
-        option.value = date.toISOString().split("T")[0];
-        option.textContent = date.toDateString();
-        dateSelect.appendChild(option);
-      }
-      updateTimes();
-    }
-
     function confirmBooking() {
-      const duration = parseInt(document.getElementById('duration').value);
+      const duration = document.getElementById('duration').value;
       const date = document.getElementById('lessonDate').value;
       const time = document.getElementById('lessonTime').value;
       const sessionType = document.getElementById('sessionType').value;
+      const location = document.getElementById('locationLink').value;
+      const schoolName = document.getElementById('schoolName').value;
+
+      const teacher = JSON.parse(localStorage.getItem("teacherInfo"));
 
       if (!date || !time || !sessionType) {
-        alert("Please complete all booking details.");
+        alert("Please fill in all required fields.");
         return;
       }
 
-      const timeParts = time.split(/[: ]/);
-      let hour = parseInt(timeParts[0]);
-      const minute = parseInt(timeParts[1]);
-      if (timeParts[2] === "PM" && hour < 12) hour += 12;
-      if (timeParts[2] === "AM" && hour === 12) hour = 0;
+      if (!teacher || !teacher.name || !teacher.number) {
+        alert("No teacher information found. Please sign up or log in.");
+        return;
+      }
 
-      const endTime = new Date(date + "T" + hour.toString().padStart(2, "0") + ":" + minute.toString().padStart(2, "0") + ":00");
-      endTime.setMinutes(endTime.getMinutes() + duration);
-      bookingEndTime = endTime;
-      localStorage.setItem("bookingEndTime", bookingEndTime.toISOString());
+      const price = priceMap[duration];
+      let message = `Hello ${teacher.name}, I booked a ${duration}-minute ${sessionType} session on ${date} at ${time}.`;
+
+      if (sessionType === "in-person") {
+        message += `\nLocation: ${location}\nSchool: ${schoolName}`;
+      }
+
+      message += `\nPrice: AED ${price}`;
+
+      const whatsappLink = `https://wa.me/${teacher.number}?text=${encodeURIComponent(message)}`;
+
+      localStorage.setItem("bookingEndTime", new Date().toISOString());
 
       document.getElementById("bookingForm").classList.add("hidden");
-
-      const message = Hello, I booked a session for ${date} at ${time}.;
       const whatsappDiv = document.getElementById("whatsappContact");
       whatsappDiv.classList.remove("hidden");
-      whatsappDiv.innerHTML =
-        `✅ Booking Confirmed!<br/>
-        Contact your teacher via WhatsApp:<br/>
-        <a href="https://wa.me/971500000000?text=${encodeURIComponent(message)}" target="_blank">
-          +971 50 000 0000 📞
-        </a>`;
+      whatsappDiv.innerHTML = `
+        ✅ Booking Confirmed!<br/>
+        Contact your teacher <strong>${teacher.name}</strong> via WhatsApp:<br/>
+        <a href="${whatsappLink}" target="_blank">${teacher.number} 📞</a>
+      `;
     }
 
     function checkBookingStatus() {
@@ -229,9 +238,10 @@
       }
     }
 
-    populateDates();
+    updatePrice();
     checkBookingStatus();
     setInterval(checkBookingStatus, 60000);
   </script>
 </body>
 </html>
+
