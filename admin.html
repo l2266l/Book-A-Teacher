@@ -126,12 +126,12 @@
       document.getElementById("langBtn").innerText = currentLang === "en" ? "العربية" : "English";
     });
 
-    // Load Stats
+    // Load Stats from localStorage
     document.getElementById("parentCount").innerText = localStorage.getItem("parentCount") || 0;
     document.getElementById("teacherCount").innerText = localStorage.getItem("teacherCount") || 0;
     document.getElementById("visitCount").innerText = localStorage.getItem("visitCount") || 0;
 
-    // Load Teachers
+    // Load Teachers from localStorage
     const teachers = JSON.parse(localStorage.getItem("teachers") || "[]");
     const teacherList = document.getElementById("teacherList");
 
@@ -148,28 +148,35 @@
             : `<span data-en="No Certificate" data-ar="لا يوجد شهادة">No Certificate</span>`;
 
           const row = document.createElement("tr");
-          row.innerHTML = `
-            <td>${teacher.name}</td>
+          row.innerHTML = 
+            `<td>${teacher.name}</td>
             <td>${teacher.email}</td>
             <td>${receiptCell}</td>
             <td>${certificateCell}</td>
-            <td><button class="btn" onclick="approveTeacher(${index})" data-en="Approve" data-ar="تفعيل">Approve</button></td>
-          `;
+            <td><button class="btn" onclick="approveTeacher(${index})" data-en="Approve" data-ar="تفعيل">Approve</button></td>`;
           teacherList.appendChild(row);
         }
       });
+      // Update language on re-render
+      if (currentLang === "ar") {
+        document.querySelectorAll("[data-en]").forEach(el => {
+          el.innerText = el.getAttribute(`data-${currentLang}`);
+        });
+      }
     }
 
     function approveTeacher(index) {
       teachers[index].approved = true;
       localStorage.setItem("teachers", JSON.stringify(teachers));
 
-      // Update approved count
+      // Update approved count (teachers who are approved)
       const approvedCount = teachers.filter(t => t.approved).length;
       localStorage.setItem("teacherCount", approvedCount);
 
       alert("Teacher approved!");
       renderTeachers();
+      // Update displayed teacher count
+      document.getElementById("teacherCount").innerText = approvedCount;
     }
 
     renderTeachers();
