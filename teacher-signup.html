@@ -172,6 +172,12 @@
       <label for="certificate-input" id="file-label">Upload University Certificate</label>
       <span id="file-name"></span>
 
+      <!-- Admin checkbox -->
+      <label>
+        <input type="checkbox" id="admin-checkbox" />
+        <span id="admin-label">Request Admin Access</span>
+      </label>
+
       <button type="submit" id="submit-button">Sign Up</button>
     </form>
 
@@ -214,7 +220,6 @@
       toInput.disabled = !isChecked;
     }
 
-    // Update file label text and show selected file name
     const fileInput = document.getElementById("certificate-input");
     const fileLabel = document.getElementById("file-label");
     const fileNameSpan = document.getElementById("file-name");
@@ -233,117 +238,26 @@
 
     function toggleLanguage() {
       isArabic = !isArabic;
-
-      // Set lang and direction
       document.documentElement.lang = isArabic ? "ar" : "en";
       document.documentElement.dir = isArabic ? "rtl" : "ltr";
 
-      // Update UI text
       document.getElementById("signup-title").innerText = isArabic ? "تسجيل المعلم" : "Teacher Sign Up";
-      document.getElement
+      document.getElementById("fullname-input").placeholder = isArabic ? "الاسم الكامل" : "Full Name";
+      document.getElementById("email-input").placeholder = isArabic ? "البريد الإلكتروني" : "Email";
+      document.getElementById("password-input").placeholder = isArabic ? "كلمة المرور" : "Password";
+      document.getElementById("iban-input").placeholder = isArabic ? "رقم الآيبان" : "IBAN";
+      document.getElementById("bank-input").placeholder = isArabic ? "اسم البنك" : "Bank Name";
+      updateFileLabel();
+      document.getElementById("admin-label").innerText = isArabic ? "طلب صلاحية مشرف" : "Request Admin Access";
+      document.getElementById("loginText").innerHTML = isArabic
+        ? 'هل لديك حساب؟ <a href="login.html">تسجيل الدخول</a>'
+        : 'Already have an account? <a href="login.html">Login</a>';
 
+      renderDays();
+    }
 
-
-
-
-
-ChatGPT said:
-ById("fullname-input").placeholder = isArabic ? "الاسم الكامل" : "Full Name";
-document.getElementById("email-input").placeholder = isArabic ? "البريد الإلكتروني" : "Email";
-document.getElementById("password-input").placeholder = isArabic ? "كلمة المرور" : "Password";
-document.getElementById("iban-input").placeholder = isArabic ? "رقم الآيبان" : "IBAN";
-document.getElementById("bank-input").placeholder = isArabic ? "اسم البنك" : "Bank Name";
-
-javascript
-Copy
-Edit
-  // Subject dropdown
-  const subjectSelect = document.getElementById("subject-input");
-  subjectSelect.innerHTML = "";
-  const subjects = [
-    {en:"Physics", ar:"الفيزياء", val:"physics"},
-    {en:"Mathematics", ar:"الرياضيات", val:"mathematics"},
-    {en:"Biology", ar:"الأحياء", val:"biology"},
-    {en:"Chemistry", ar:"الكيمياء", val:"chemistry"},
-    {en:"Science", ar:"العلوم", val:"science"},
-    {en:"Arabic", ar:"العربية", val:"arabic"},
-    {en:"English", ar:"الإنجليزية", val:"english"},
-    {en:"French", ar:"الفرنسية", val:"french"},
-    {en:"Chinese", ar:"الصينية", val:"chinese"},
-    {en:"Islamic Studies", ar:"الدراسات الإسلامية", val:"islamic_studies"}
-  ];
-  const defaultOption = document.createElement("option");
-  defaultOption.disabled = true;
-  defaultOption.selected = true;
-  defaultOption.value = "";
-  defaultOption.textContent = isArabic ? "-- اختر المادة --" : "-- Select Subject --";
-  subjectSelect.appendChild(defaultOption);
-  subjects.forEach(s => {
-    const opt = document.createElement("option");
-    opt.value = s.val;
-    opt.textContent = isArabic ? s.ar : s.en;
-    subjectSelect.appendChild(opt);
-  });
-
-  // Grade dropdown
-  const gradeSelect = document.getElementById("grade-input");
-  gradeSelect.innerHTML = "";
-  const defaultGradeOption = document.createElement("option");
-  defaultGradeOption.disabled = true;
-  defaultGradeOption.selected = true;
-  defaultGradeOption.value = "";
-  defaultGradeOption.textContent = isArabic ? "-- اختر الصف --" : "-- Select Grade --";
-  gradeSelect.appendChild(defaultGradeOption);
-  for(let i=1; i<=12; i++) {
-    const opt = document.createElement("option");
-    opt.value = i;
-    opt.textContent = isArabic ? `الصف ${i}` : `${i}`;
-    gradeSelect.appendChild(opt);
-  }
-
-  // Gender dropdown
-  const genderSelect = document.getElementById("gender-input");
-  genderSelect.innerHTML = "";
-  if (isArabic) {
-    genderSelect.innerHTML = `
-      <option value="male">السيد</option>
-      <option value="female">السيدة</option>
-    `;
-  } else {
-    genderSelect.innerHTML = `
-      <option value="male">Mr</option>
-      <option value="female">Ms</option>
-    `;
-  }
-
-  // Availability label
-  document.getElementById("availability-label").innerHTML = `<strong>${isArabic ? "التوفر" : "Availability"}:</strong>`;
-
-  // File label
-  updateFileLabel();
-
-  // Login text
-  document.getElementById("loginText").innerHTML = isArabic
-    ? 'هل لديك حساب؟ <a href="login.html">تسجيل الدخول</a>'
-    : 'Already have an account? <a href="login.html">Login</a>';
-
-  // Submit button
-  document.getElementById("submit-button").textContent = isArabic ? "تسجيل" : "Sign Up";
-
-  // Language toggle button text
-  document.getElementById("langToggleBtn").textContent = isArabic ? "English" : "عربي";
-
-  // Render days again for language update
-  renderDays();
-}
-
-// Initial render
-renderDays();
-
-// Form submit (for demo, just alert)
-document.getElementById("signup-form").addEventListener("submit", (e) => {
-  e.preventDefault();
-  alert(isArabic ? "تم إرسال النموذج!" : "Form submitted!");
-  // Here you can add real submission code
-});
-</script> </body> </html>
+    renderDays();
+    updateFileLabel();
+  </script>
+</body>
+</html>
