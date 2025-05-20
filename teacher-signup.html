@@ -127,6 +127,10 @@
       <input type="text" placeholder="Full Name" id="fullname-input" required />
       <input type="email" placeholder="Email" id="email-input" required />
       <input type="password" placeholder="Password" id="password-input" required />
+      
+      <!-- WhatsApp Number Field Added -->
+      <input type="tel" placeholder="WhatsApp Number" id="whatsapp-input" required />
+
       <input type="text" placeholder="IBAN" id="iban-input" required />
       <input type="text" placeholder="Bank Name" id="bank-input" required />
 
@@ -242,22 +246,87 @@
       document.documentElement.dir = isArabic ? "rtl" : "ltr";
 
       document.getElementById("signup-title").innerText = isArabic ? "تسجيل المعلم" : "Teacher Sign Up";
-      document.getElementById("fullname-input").placeholder = isArabic ? "الاسم الكامل" : "Full Name";
-      document.getElementById("email-input").placeholder = isArabic ? "البريد الإلكتروني" : "Email";
-      document.getElementById("password-input").placeholder = isArabic ? "كلمة المرور" : "Password";
-      document.getElementById("iban-input").placeholder = isArabic ? "رقم الآيبان" : "IBAN";
-      document.getElementById("bank-input").placeholder = isArabic ? "اسم البنك" : "Bank Name";
-      updateFileLabel();
-      document.getElementById("admin-label").innerText = isArabic ? "طلب صلاحية مشرف" : "Request Admin Access";
-      document.getElementById("loginText").innerHTML = isArabic
-        ? 'هل لديك حساب؟ <a href="login.html">تسجيل الدخول</a>'
-        : 'Already have an account? <a href="login.html">Login</a>';
+      document.getElementById("fullname-input").placeholder = isArabic
 
-      renderDays();
-    }
 
-    renderDays();
-    updateFileLabel();
-  </script>
-</body>
-</html>
+
+
+
+ChatGPT said:
+? "الاسم الكامل" : "Full Name";
+document.getElementById("email-input").placeholder = isArabic ? "البريد الإلكتروني" : "Email";
+document.getElementById("password-input").placeholder = isArabic ? "كلمة المرور" : "Password";
+document.getElementById("whatsapp-input").placeholder = isArabic ? "رقم واتساب" : "WhatsApp Number";
+document.getElementById("iban-input").placeholder = isArabic ? "رقم الآيبان" : "IBAN";
+document.getElementById("bank-input").placeholder = isArabic ? "اسم البنك" : "Bank Name";
+
+pgsql
+Copy
+Edit
+  const subjectSelect = document.getElementById("subject-input");
+  if (isArabic) {
+    subjectSelect.options[0].text = "-- اختر المادة --";
+    subjectSelect.options[1].text = "الفيزياء";
+    subjectSelect.options[2].text = "الرياضيات";
+    subjectSelect.options[3].text = "الأحياء";
+    subjectSelect.options[4].text = "الكيمياء";
+    subjectSelect.options[5].text = "العلوم";
+    subjectSelect.options[6].text = "العربية";
+    subjectSelect.options[7].text = "الإنجليزية";
+    subjectSelect.options[8].text = "الفرنسية";
+    subjectSelect.options[9].text = "الصينية";
+    subjectSelect.options[10].text = "الدراسات الإسلامية";
+  } else {
+    subjectSelect.options[0].text = "-- Select Subject --";
+    subjectSelect.options[1].text = "Physics";
+    subjectSelect.options[2].text = "Mathematics";
+    subjectSelect.options[3].text = "Biology";
+    subjectSelect.options[4].text = "Chemistry";
+    subjectSelect.options[5].text = "Science";
+    subjectSelect.options[6].text = "Arabic";
+    subjectSelect.options[7].text = "English";
+    subjectSelect.options[8].text = "French";
+    subjectSelect.options[9].text = "Chinese";
+    subjectSelect.options[10].text = "Islamic Studies";
+  }
+
+  const gradeSelect = document.getElementById("grade-input");
+  if (isArabic) {
+    gradeSelect.options[0].text = "-- اختر الصف --";
+  } else {
+    gradeSelect.options[0].text = "-- Select Grade --";
+  }
+
+  const genderSelect = document.getElementById("gender-input");
+  if (isArabic) {
+    genderSelect.options[0].text = "السيد";
+    genderSelect.options[1].text = "السيدة";
+  } else {
+    genderSelect.options[0].text = "Mr";
+    genderSelect.options[1].text = "Ms";
+  }
+
+  document.getElementById("availability-label").innerText = isArabic ? "التوافر:" : "Availability:";
+  document.getElementById("admin-label").innerText = isArabic ? "طلب صلاحيات المدير" : "Request Admin Access";
+  document.getElementById("submit-button").innerText = isArabic ? "تسجيل" : "Sign Up";
+
+  const loginText = document.getElementById("loginText");
+  loginText.innerHTML = isArabic
+    ? 'هل لديك حساب؟ <a href="login.html">تسجيل الدخول</a>'
+    : 'Already have an account? <a href="login.html">Login</a>';
+
+  updateFileLabel();
+  renderDays();
+
+  document.getElementById("langToggleBtn").innerText = isArabic ? "English" : "عربي";
+}
+
+// Initialize on load
+renderDays();
+
+// Form submission dummy handler
+document.getElementById("signup-form").addEventListener("submit", function(e) {
+  e.preventDefault();
+  alert(isArabic ? "تم الإرسال (مثال)" : "Form submitted (example)");
+});
+</script> </body> </html> ```
