@@ -145,12 +145,14 @@
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.0/firebase-app.js";
   import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.8.0/firebase-analytics.js";
+  import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/11.8.0/firebase-firestore.js";
+  import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.8.0/firebase-storage.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyBF_HWMbMUaetcluFgcPPICjOZt2MBtHro",
     authDomain: "teacher-signup.firebaseapp.com",
     projectId: "teacher-signup",
-    storageBucket: "teacher-signup.firebasestorage.app",
+    storageBucket: "teacher-signup.appspot.com",
     messagingSenderId: "176055526981",
     appId: "1:176055526981:web:10453a63f0e5b92888652c",
     measurementId: "G-4FR5EWKCT0"
@@ -158,9 +160,9 @@
 
   const app = initializeApp(firebaseConfig);
   const analytics = getAnalytics(app);
-</script>
+  const db = getFirestore(app);
+  const storage = getStorage(app);
 
-<script>
   const langToggle = document.getElementById("lang-toggle");
   const htmlEl = document.documentElement;
   let currentLang = "en";
@@ -207,78 +209,116 @@
     document.querySelectorAll("[data-en]").forEach(el => {
       const enText = el.getAttribute("data-en");
       const arText = el.getAttribute("data-ar");
-      if (lang === "en") {
-        el.textContent = enText;
-      } else {
-        el.textContent = arText;
-      }
+      el.textContent = lang === "en" ? enText : arText;
     });
   }
 
-  function updateLangAttributes(lang) {
-    htmlEl.lang = lang;
-    if(lang === "ar") {
-      htmlEl.dir = "rtl";
+  function setDirection(lang) {
+    if (lang === "ar") {
+      htmlEl.setAttribute("dir", "rtl");
+      htmlEl.setAttribute("lang", "ar");
     } else {
-      htmlEl.dir = "ltr";
+      htmlEl.setAttribute("dir", "ltr");
+      htmlEl.setAttribute("lang", "en");
     }
   }
 
-  function setLanguage(lang) {
-    currentLang = lang;
-    updateLangAttributes(lang);
+  function updateLanguage(lang) {
     updateTexts(lang);
     updatePlaceholders(lang);
     updateSelect("subject-select", subjects[lang], subjectValues);
     updateSelect("grade-select", grades[lang], gradeValues);
     updateSelect("gender-select", genders[lang], genderValues);
+    setDirection(lang);
     langToggle.textContent = lang === "en" ? "عربي" : "English";
+    currentLang = lang;
   }
 
   langToggle.addEventListener("click", () => {
-    setLanguage(currentLang === "en" ? "ar" : "en");
+    updateLanguage(currentLang === "en" ? "ar" : "en");
   });
 
-  // Initial setup
-  setLanguage("en");
+  // Initialize selects and placeholders to English at start
+  updateLanguage("en");
 
-  // File input label update
+  // Show file name on file input
   const certificateInput = document.getElementById("certificate-input");
-  const fileNameDisplay = document.getElementById("file-name");
-
+  const fileNameDiv = document.getElementById("file-name");
   certificateInput.addEventListener("change", () => {
-    if (certificateInput.files.length > 0) {
-      fileNameDisplay.textContent = certificateInput.files[0].name;
+    const files = certificateInput.files;
+    if (files.length > 0) {
+      fileNameDiv.textContent = files[0].name;
     } else {
-      fileNameDisplay.textContent = "";
+      fileNameDiv.textContent = "";
     }
   });
 
-  // Form validation and submission handler
+  // Handle form submit
   const form = document.getElementById("signup-form");
 
-  form.addEventListener("submit", e => {
-    e.preventDefault();
+  form.addEventListener("submit", async (event) => {
+    event.preventDefault();
 
-    // Basic validity check (HTML5)
     if (!form.checkValidity()) {
-      alert(currentLang === "en" ? "Please fill out all required fields correctly." : "يرجى تعبئة جميع الحقول المطلوبة بشكل صحيح.");
       form.reportValidity();
       return;
     }
 
-    if (certificateInput.files.length === 0) {
-      alert(currentLang === "en" ? "Please upload your certificate." : "يرجى تحميل الشهادة.");
+    const fullname = form.fullname.value.trim();
+    const email = form.email.value.trim();
+    const password = form.password.value;
+    const whatsapp = form.whatsapp.value.trim();
+    const bank = form.bank.value.trim();
+    const iban = form.iban.value.trim();
+    const subject = form.subject.value;
+    const grade = form.grade.value;
+    const gender = form.gender.value;
+    const certificateFile = certificateInput.files[0];
+
+    if (!certificateFile) {
+      alert(currentLang === "en" ? "Please upload your certificate file." : "يرجى تحميل ملف الشهادة.");
       return;
     }
 
-    // You can add further processing here, like sending data to your server or Firebase
+    try {
+      // Disable submit button to prevent multiple submits
+      const submitBtn = form.querySelector("button[type='submit']");
+      submitBtn.disabled = true;
+      submitBtn.textContent = currentLang === "en" ? "Submitting..." : "جارٍ الإرسال...";
 
-    alert(currentLang === "en" ? "Form submitted successfully!" : "تم إرسال النموذج بنجاح!");
-    form.reset();
-    fileNameDisplay.textContent = "";
+      // Upload certificate file to Firebase Storage
+      const storageRef = ref(storage, `certificates/${Date.now()}_${certificateFile.name}`);
+      const snapshot = await uploadBytes(storageRef, certificateFile);
+      const downloadURL = await getDownloadURL(snapshot.ref);
+
+      // Save all data to Firestore
+      const docRef = await addDoc(collection(db, "teachers"), {
+        fullname,
+        email,
+        password,
+        whatsapp,
+        bank,
+        iban,
+        subject,
+        grade,
+        gender,
+        certificateURL: downloadURL,
+        timestamp: new Date()
+      });
+
+      alert(currentLang === "en" ? "Registration successful!" : "تم التسجيل بنجاح!");
+      form.reset();
+      fileNameDiv.textContent = "";
+    } catch (error) {
+      console.error("Error submitting form: ", error);
+      alert(currentLang === "en" ? "Failed to submit form. Please try again." : "فشل في إرسال النموذج. يرجى المحاولة مرة أخرى.");
+    } finally {
+      const submitBtn = form.querySelector("button[type='submit']");
+      submitBtn.disabled = false;
+      submitBtn.textContent = currentLang === "en" ? "Sign Up" : "تسجيل";
+    }
   });
-</script>
 
+</script>
 </body>
 </html>
