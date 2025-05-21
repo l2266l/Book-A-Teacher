@@ -18,7 +18,7 @@
       padding: 20px;
       border-radius: 10px;
       box-shadow: 0 0 10px rgba(0,0,0,0.2);
-      max-width: 900px;
+      max-width: 1200px;
       margin: auto;
     }
 
@@ -42,20 +42,12 @@
       padding: 10px;
       border: 1px solid #ddd;
       text-align: center;
+      vertical-align: middle;
     }
 
     th {
       background-color: #0077b6;
       color: white;
-    }
-
-    a {
-      color: #0077b6;
-      text-decoration: none;
-    }
-
-    a:hover {
-      text-decoration: underline;
     }
 
     .status-badge {
@@ -89,6 +81,12 @@
     button.approve-btn.undo {
       background-color: #e76f51;
     }
+
+    img.preview {
+      width: 80px;
+      height: auto;
+      border-radius: 5px;
+    }
   </style>
 </head>
 <body>
@@ -96,7 +94,7 @@
   <div class="admin-content" id="adminContent">
     <h1>Admin Dashboard</h1>
     <p>Welcome, Admin. You now have access to restricted data and controls.</p>
-    
+
     <div class="counter">
       <p>Parent/Student Accounts: <span id="parentCount">0</span></p>
       <p>Teacher Accounts: <span id="teacherCount">0</span></p>
@@ -121,7 +119,6 @@
 
   <script>
     const adminPassword = "SJ";
-
     const userInput = prompt("Enter admin password:");
     if (userInput !== adminPassword) {
       alert("Access denied.");
@@ -149,16 +146,7 @@
       if (storedTeachers) {
         teachers = JSON.parse(storedTeachers);
       } else {
-        teachers = [
-          {
-            name: "Zahra Al Ali",
-            email: "zahra@univ.com",
-            certificateUrl: "https://example.com/cert.jpg",
-            receiptUrl: "https://example.com/receipt.jpg",
-            approved: false,
-            subject: "math"
-          }
-        ];
+        teachers = [];
         localStorage.setItem("teachers", JSON.stringify(teachers));
       }
     } catch (e) {
@@ -173,15 +161,9 @@
 
     function escapeHTML(str) {
       if (!str) return "";
-      return str.replace(/[&<>"']/g, function(m) {
-        return ({
-          '&': '&amp;',
-          '<': '&lt;',
-          '>': '&gt;',
-          '"': '&quot;',
-          "'": '&#39;'
-        })[m];
-      });
+      return str.replace(/[&<>"']/g, m => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      })[m]);
     }
 
     function renderTeachers() {
@@ -200,12 +182,12 @@
         const receiptUrl = teacher.receiptUrl || "";
         const approved = !!teacher.approved;
 
-        const certLink = certUrl
-          ? `<a href="${encodeURI(certUrl)}" target="_blank" rel="noopener noreferrer">View Certificate</a>`
+        const certHTML = certUrl
+          ? `<a href="${encodeURI(certUrl)}" target="_blank"><img src="${encodeURI(certUrl)}" class="preview" alt="Certificate"></a>`
           : "N/A";
 
-        const receiptLink = receiptUrl
-          ? `<a href="${encodeURI(receiptUrl)}" target="_blank" rel="noopener noreferrer">View Receipt</a>`
+        const receiptHTML = receiptUrl
+          ? `<a href="${encodeURI(receiptUrl)}" target="_blank"><img src="${encodeURI(receiptUrl)}" class="preview" alt="Receipt"></a>`
           : "N/A";
 
         const statusBadge = approved
@@ -219,8 +201,8 @@
           `<tr>
             <td>${name}</td>
             <td>${email}</td>
-            <td>${certLink}</td>
-            <td>${receiptLink}</td>
+            <td>${certHTML}</td>
+            <td>${receiptHTML}</td>
             <td>${statusBadge}</td>
             <td><button class="approve-btn ${actionBtnClass}" data-index="${index}">${actionBtnText}</button></td>
           </tr>`
