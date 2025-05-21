@@ -112,36 +112,31 @@
       "Science Teachers": "معلمين العلوم",
       "Grade: ": "الصف: ",
       "Online & In-person": "عن بعد و حضوري",
-      "Chat": "محادثة"
+      "Chat": "محادثة",
+      "No teachers available": "لا يوجد معلمين حالياً"
     };
 
-    function toggleLanguage() {
-      isArabic = !isArabic;
-      document.documentElement.lang = isArabic ? "ar" : "en";
-      document.documentElement.dir = isArabic ? "rtl" : "ltr";
-
-      document.getElementById("langToggleBtn").innerText = isArabic ? "English" : "عربي";
-      document.getElementById("page-title").innerText = isArabic ? translations["Science Teachers"] : "Science Teachers";
-      document.getElementById("goBackBtnText").innerText = isArabic ? translations["Go Back"] : "Go Back";
-
-      // Refresh teacher cards
-      renderTeachers();
-    }
-
+    // Updated to load from localStorage 'teachers' and only show approved ones with subject = science
     function renderTeachers() {
       const container = document.getElementById("teacher-list");
       container.innerHTML = "";
 
-      const allTeachers = JSON.parse(localStorage.getItem("approvedTeachers")) || [];
+      // Load all teachers from localStorage - assumed to be saved under 'teachers'
+      // Each teacher object: { name, gender, grade, mode, subject, approved, ... }
+      let allTeachers = JSON.parse(localStorage.getItem("teachers")) || [];
 
-      const scienceTeachers = allTeachers.filter(t => t.subject === "Science");
+      // Filter for approved teachers whose subject is 'science' (case-insensitive)
+      const scienceTeachers = allTeachers.filter(t => 
+        t.approved === true &&
+        t.subject && t.subject.toLowerCase() === "science"
+      );
 
       if (scienceTeachers.length === 0) {
-        container.innerHTML = `<p>${isArabic ? "لا يوجد معلمين علوم حاليًا." : "No Science teachers available."}</p>`;
+        container.innerHTML = `<p>${isArabic ? translations["No teachers available"] : "No teachers available"}</p>`;
         return;
       }
 
-      scienceTeachers.forEach((teacher, index) => {
+      scienceTeachers.forEach(teacher => {
         const card = document.createElement("div");
         card.className = "teacher-card";
 
@@ -153,11 +148,20 @@
 
         const grade = document.createElement("div");
         grade.className = "teacher-grade";
-        grade.innerText = isArabic ? `${translations["Grade: "]}${teacher.grade}` : `Grade: ${teacher.grade}`;
+        grade.innerText = isArabic
+          ? `${translations["Grade: "]}${teacher.grade}`
+          : `Grade: ${teacher.grade}`;
 
         const mode = document.createElement("div");
         mode.className = "teacher-mode";
-        mode.innerText = isArabic ? translations["Online & In-person"] : "Online & In-person";
+
+        if (teacher.mode === "online") {
+          mode.innerText = isArabic ? "عن بعد" : "Online";
+        } else if (teacher.mode === "in-person") {
+          mode.innerText = isArabic ? "حضوري" : "In-person";
+        } else {
+          mode.innerText = isArabic ? translations["Online & In-person"] : "Online & In-person";
+        }
 
         const chatBtn = document.createElement("button");
         chatBtn.className = "chat-button";
@@ -173,33 +177,32 @@
       });
     }
 
+    function toggleLanguage() {
+      isArabic = !isArabic;
+      document.documentElement.lang = isArabic ? "ar" : "en";
+      document.documentElement.dir = isArabic ? "rtl" : "ltr";
+
+      document.getElementById("langToggleBtn").innerText = isArabic ? "English" : "عربي";
+      document.getElementById("page-title").innerText = isArabic ? translations["Science Teachers"] : "Science Teachers";
+      document.getElementById("goBackBtnText").innerText = isArabic ? translations["Go Back"] : "Go Back";
+
+      renderTeachers();
+    }
+
     function startChat(name) {
       const existingChats = JSON.parse(localStorage.getItem("chats")) || [];
       if (!existingChats.includes(name)) {
         existingChats.push(name);
         localStorage.setItem("chats", JSON.stringify(existingChats));
       }
-      const encodedName = encodeURIComponent(name);
-      window.location.href = `chat.html?teacher=${encodedName}`;
+      window.location.href = `chat.html?teacher=${encodeURIComponent(name)}`;
     }
 
     function goBack() {
       window.location.href = "all-subjects.html";
     }
 
-    // Example data for testing (you can remove this)
-    const demoTeachers = [
-      { name: "Dana", subject: "Science", grade: 7, gender: "female" },
-      { name: "Hisham", subject: "Science", grade: 4, gender: "male" },
-      { name: "Sara", subject: "Science", grade: 8, gender: "female" },
-      { name: "Khaled", subject: "Science", grade: 9, gender: "male" },
-      { name: "Lina", subject: "Mathematics", grade: 10, gender: "female" } // not shown
-    ];
-    if (!localStorage.getItem("approvedTeachers")) {
-      localStorage.setItem("approvedTeachers", JSON.stringify(demoTeachers));
-    }
-
-    // Initial load
+    // Initial render
     renderTeachers();
   </script>
 </body>
