@@ -3,14 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <title>Admin Dashboard</title>
-  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-storage-compat.js"></script>
   <style>
     body { font-family: Arial, sans-serif; padding: 20px; background: #f0f0f0; }
     .hidden { display: none; }
     table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-    th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: left; vertical-align: middle; }
     th { background: #eee; }
     button { padding: 5px 10px; cursor: pointer; }
     a { color: blue; text-decoration: underline; }
@@ -29,94 +26,95 @@
 
 <!-- Dashboard section -->
 <div id="dashboard" class="hidden">
-  <h2>Summary</h2>
-  <p>Parents: <span id="parentCount"></span></p>
-  <p>Teachers: <span id="teacherCount"></span></p>
-  <p>Site visits: <span id="visitCount"></span></p>
-
   <h2>Teachers</h2>
   <table>
     <thead>
       <tr>
-        <th>Name</th><th>Email</th><th>Subject</th><th>University Certificate</th><th>Payment Receipt</th><th>Approved</th><th>Action</th>
+        <th>Name</th><th>Email</th><th>Subject</th><th>Payment Receipt</th><th>Uni Certificate</th><th>Approved</th><th>Action</th>
       </tr>
     </thead>
     <tbody id="teacherList"></tbody>
   </table>
 </div>
 
-<script>
-  // Firebase config
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.0/firebase-app.js";
+  import { getFirestore, collection, getDocs, updateDoc, doc } from "https://www.gstatic.com/firebasejs/11.8.0/firebase-firestore.js";
+
+  // Your Firebase configuration
   const firebaseConfig = {
-    apiKey: "AIzaSyDGoROxKGm8Nj9EDqFw95FuF0sRgCahQUg",
-    authDomain: "smartstudents-64d4c.firebaseapp.com",
-    databaseURL: "https://smartstudents-64d4c-default-rtdb.firebaseio.com",
-    projectId: "smartstudents-64d4c",
-    storageBucket: "smartstudents-64d4c.appspot.com",
-    messagingSenderId: "179949719475",
-    appId: "1:179949719475:web:b417b3578fdec15f66c3f5"
+    apiKey: "AIzaSyAlqeoQF71ZXekfwksBOngyinJMK6XYnHE",
+    authDomain: "book-a-teacher-b1588.firebaseapp.com",
+    projectId: "book-a-teacher-b1588",
+    storageBucket: "book-a-teacher-b1588.firebasestorage.app",
+    messagingSenderId: "829115169239",
+    appId: "1:829115169239:web:7c0a3ae8f3578b1f7e7392",
+    measurementId: "G-9E0HWWM546"
   };
-  firebase.initializeApp(firebaseConfig);
-  const db = firebase.database();
-  const storage = firebase.storage();
 
-  let visitCount = 0; // Optional counter
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
 
+  // Login function
   function login() {
     const pw = document.getElementById('password').value;
     if (pw === 'SJ') {
       document.getElementById('loginDiv').classList.add('hidden');
       document.getElementById('dashboard').classList.remove('hidden');
-      loadDashboard();
+      loadTeachers();
     } else {
       document.getElementById('error').textContent = 'Wrong password!';
     }
   }
 
-  function loadDashboard() {
-    // Count parents
-    db.ref('parentUsers').once('value', snapshot => {
-      const parents = snapshot.val() || {};
-      document.getElementById('parentCount').textContent = Object.keys(parents).length;
-    });
+  // Load teachers from Firestore
+  async function loadTeachers() {
+    const tbody = document.getElementById('teacherList');
+    tbody.innerHTML = '';
 
-    // Count teachers and display them
-    db.ref('teacherUsers').once('value', snapshot => {
-      const teachers = snapshot.val() || {};
-      const tbody = document.getElementById('teacherList');
-      tbody.innerHTML = '';
-      let count = 0;
-
-      Object.entries(teachers).forEach(([id, teacher]) => {
-        count++;
+    try {
+      const querySnapshot = await getDocs(collection(db, "teachers"));
+      querySnapshot.forEach(docSnap => {
+        const t = docSnap.data();
         const tr = document.createElement('tr');
+
+        // Make sure these fields exist in your Firestore documents:
+        // name, email, subject, paymentReceiptURL, uniCertificateURL, approved (boolean)
+        
         tr.innerHTML = `
-          <td>${teacher.name || ''}</td>
-          <td>${teacher.email || ''}</td>
-          <td>${teacher.subject || ''}</td>
-          <td><a href="${teacher.uniCertificate || '#'}" target="_blank">View</a></td>
-          <td><a href="${teacher.paymentReceipt || '#'}" target="_blank">View</a></td>
-          <td>${teacher.approved ? 'Yes' : 'No'}</td>
-          <td>
-            <button onclick="toggleApproval('${id}', ${teacher.approved})">
-              ${teacher.approved ? 'Undo' : 'Approve'}
-            </button>
-          </td>
+          <td>${t.name || '-'}</td>
+          <td>${t.email || '-'}</td>
+          <td>${t.subject || '-'}</td>
+          <td>${t.paymentReceiptURL ? `<a href="${t.paymentReceiptURL}" target="_blank">View</a>` : '-'}</td>
+          <td>${t.uniCertificateURL ? `<a href="${t.uniCertificateURL}" target="_blank">View</a>` : '-'}</td>
+          <td>${t.approved ? 'Yes' : 'No'}</td>
+          <td><button onclick="toggleApproval('${docSnap.id}', ${t.approved})">${t.approved ? 'Undo' : 'Approve'}</button></td>
         `;
+
         tbody.appendChild(tr);
       });
-
-      document.getElementById('teacherCount').textContent = count;
-    });
-
-    // Fake site visits
-    document.getElementById('visitCount').textContent = visitCount;
+    } catch (e) {
+      console.error("Error loading teachers:", e);
+      alert("Failed to load teacher data.");
+    }
   }
 
-  function toggleApproval(id, approved) {
-    db.ref('teacherUsers/' + id).update({ approved: !approved })
-      .then(loadDashboard);
+  // Toggle approval status
+  async function toggleApproval(teacherId, currentStatus) {
+    try {
+      const teacherRef = doc(db, "teachers", teacherId);
+      await updateDoc(teacherRef, { approved: !currentStatus });
+      loadTeachers(); // reload list after update
+    } catch (e) {
+      console.error("Error updating approval:", e);
+      alert("Failed to update approval status.");
+    }
   }
+
+  // Expose functions to global so buttons can access them
+  window.login = login;
+  window.toggleApproval = toggleApproval;
 </script>
 
 </body>
