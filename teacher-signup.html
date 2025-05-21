@@ -118,43 +118,13 @@
          data-placeholder-en="Enter IBAN" data-placeholder-ar="أدخل رقم الآيبان" />
 
   <label for="subject-select" data-en="Subject" data-ar="المادة">Subject</label>
-  <select name="subject" required id="subject-select">
-    <option value="" disabled selected data-en="Select Subject" data-ar="اختر المادة">Select Subject</option>
-    <option value="physics">Physics</option>
-    <option value="mathematics">Mathematics</option>
-    <option value="biology">Biology</option>
-    <option value="chemistry">Chemistry</option>
-    <option value="science">Science</option>
-    <option value="arabic">Arabic</option>
-    <option value="english">English</option>
-    <option value="french">French</option>
-    <option value="chinese">Chinese</option>
-    <option value="islamic">Islamic Studies</option>
-  </select>
+  <select name="subject" required id="subject-select"></select>
 
   <label for="grade-select" data-en="Grade" data-ar="الصف الدراسي">Grade</label>
-  <select name="grade" required id="grade-select">
-    <option value="" disabled selected data-en="Select Grade" data-ar="اختر الصف">Select Grade</option>
-    <option value="Grade1">Grade 1</option>
-    <option value="Grade2">Grade 2</option>
-    <option value="Grade3">Grade 3</option>
-    <option value="Grade4">Grade 4</option>
-    <option value="Grade5">Grade 5</option>
-    <option value="Grade6">Grade 6</option>
-    <option value="Grade7">Grade 7</option>
-    <option value="Grade8">Grade 8</option>
-    <option value="Grade9">Grade 9</option>
-    <option value="Grade10">Grade 10</option>
-    <option value="Grade11">Grade 11</option>
-    <option value="Grade12">Grade 12</option>
-  </select>
+  <select name="grade" required id="grade-select"></select>
 
   <label for="gender-select" data-en="Gender" data-ar="اللقب">Gender</label>
-  <select name="gender" required id="gender-select">
-    <option value="" disabled selected data-en="Select Title" data-ar="اختر اللقب">Select Title</option>
-    <option value="mr">Mr</option>
-    <option value="ms">Ms</option>
-  </select>
+  <select name="gender" required id="gender-select"></select>
 
   <label for="certificate-input" data-en="Upload Certificate" data-ar="تحميل الشهادة">Upload Certificate</label>
   <input id="certificate-input" name="certificate" type="file" accept=".pdf,.jpg,.jpeg,.png" aria-describedby="file-name" />
@@ -162,6 +132,25 @@
 
   <button type="submit" data-en="Sign Up" data-ar="تسجيل">Sign Up</button>
 </form>
+
+<!-- Firebase SDK -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.0/firebase-app.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.8.0/firebase-analytics.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBF_HWMbMUaetcluFgcPPICjOZt2MBtHro",
+    authDomain: "teacher-signup.firebaseapp.com",
+    projectId: "teacher-signup",
+    storageBucket: "teacher-signup.firebasestorage.app",
+    messagingSenderId: "176055526981",
+    appId: "1:176055526981:web:10453a63f0e5b92888652c",
+    measurementId: "G-4FR5EWKCT0"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const analytics = getAnalytics(app);
+</script>
 
 <script>
   const langToggle = document.getElementById("lang-toggle");
@@ -183,112 +172,106 @@
     ar: ["اختر اللقب", "السيد", "السيدة"]
   };
 
-  function translatePage() {
-    // Translate placeholders
-    document.querySelectorAll("input, select").forEach(el => {
-      if (el.dataset.placeholderEn && el.dataset.placeholderAr) {
-        el.placeholder = currentLang === "en" ? el.dataset.placeholderEn : el.dataset.placeholderAr;
-      }
-    });
+  const subjectValues = ["", "physics", "mathematics", "biology", "chemistry", "science", "arabic", "english", "french", "chinese", "islamic"];
+  const gradeValues = ["", "Grade1", "Grade2", "Grade3", "Grade4", "Grade5", "Grade6", "Grade7", "Grade8", "Grade9", "Grade10", "Grade11", "Grade12"];
+  const genderValues = ["", "mr", "ms"];
 
-    // Translate labels and other elements with data-en and data-ar
-    document.querySelectorAll("[data-en][data-ar]").forEach(el => {
-      el.textContent = currentLang === "en" ? el.dataset.en : el.dataset.ar;
-    });
-
-    // Translate select options (subjects)
-    const subjectSelect = document.getElementById("subject-select");
-    const oldValueSubject = subjectSelect.value;
-    subjectSelect.options.length = 0;
-    subjects[currentLang].forEach((text, i) => {
+  function updateSelect(id, texts, values) {
+    const select = document.getElementById(id);
+    select.innerHTML = "";
+    texts.forEach((text, idx) => {
       const option = document.createElement("option");
-      option.value = i === 0 ? "" : subjectSelect.options[i] ? subjectSelect.options[i].value : "";
+      option.value = values[idx];
       option.textContent = text;
-      if(i === 0) option.disabled = true;
-      if(i === 0) option.selected = true;
-      // Set value for actual subjects except placeholder
-      if(i > 0) option.value = ["physics","mathematics","biology","chemistry","science","arabic","english","french","chinese","islamic"][i-1];
-      subjectSelect.appendChild(option);
+      select.appendChild(option);
     });
-    if(oldValueSubject) subjectSelect.value = oldValueSubject;
+  }
 
-    // Translate grade select options
-    const gradeSelect = document.getElementById("grade-select");
-    const oldValueGrade = gradeSelect.value;
-    gradeSelect.options.length = 0;
-    grades[currentLang].forEach((text, i) => {
-      const option = document.createElement("option");
-      option.value = i === 0 ? "" : gradeSelect.options[i] ? gradeSelect.options[i].value : "";
-      option.textContent = text;
-      if(i === 0) option.disabled = true;
-      if(i === 0) option.selected = true;
-      if(i > 0) option.value = "Grade" + i;
-      gradeSelect.appendChild(option);
+  function updatePlaceholders(lang) {
+    document.querySelectorAll("input[data-placeholder-en]").forEach(input => {
+      const placeholder = input.getAttribute(`data-placeholder-${lang}`);
+      if (placeholder) input.placeholder = placeholder;
     });
-    if(oldValueGrade) gradeSelect.value = oldValueGrade;
+  }
 
-    // Translate gender select options
-    const genderSelect = document.getElementById("gender-select");
-    const oldValueGender = genderSelect.value;
-    genderSelect.options.length = 0;
-    genders[currentLang].forEach((text, i) => {
-      const option = document.createElement("option");
-      option.value = i === 0 ? "" : genderSelect.options[i] ? genderSelect.options[i].value : "";
-      option.textContent = text;
-      if(i === 0) option.disabled = true;
-      if(i === 0) option.selected = true;
-      if(i === 1) option.value = "mr";
-      if(i === 2) option.value = "ms";
-      genderSelect.appendChild(option);
+  function updateTexts(lang) {
+    document.querySelectorAll("[data-en]").forEach(el => {
+      el.textContent = el.getAttribute(`data-${lang}`) || el.textContent;
     });
-    if(oldValueGender) genderSelect.value = oldValueGender;
+    updateSelect("subject-select", subjects[lang], subjectValues);
+    updateSelect("grade-select", grades[lang], gradeValues);
+    updateSelect("gender-select", genders[lang], genderValues);
+    updatePlaceholders(lang);
 
-    // Adjust direction and lang attribute
-    if(currentLang === "ar") {
-      htmlEl.lang = "ar";
-      htmlEl.dir = "rtl";
-      document.body.style.textAlign = "right";
-      langToggle.textContent = "English";
-    } else {
-      htmlEl.lang = "en";
-      htmlEl.dir = "ltr";
-      document.body.style.textAlign = "left";
-      langToggle.textContent = "عربي";
-    }
+    langToggle.textContent = lang === "en" ? "عربي" : "English";
+    htmlEl.dir = lang === "ar" ? "rtl" : "ltr";
   }
 
   langToggle.addEventListener("click", () => {
     currentLang = currentLang === "en" ? "ar" : "en";
-    translatePage();
+    updateTexts(currentLang);
   });
 
-  // Initialize placeholders and labels
-  translatePage();
+  // Initialize form and language on page load
+  updateTexts(currentLang);
 
-  // Show selected file name
-  const certInput = document.getElementById("certificate-input");
+  const fileInput = document.getElementById("certificate-input");
   const fileNameDisplay = document.getElementById("file-name");
-  certInput.addEventListener("change", () => {
-    if(certInput.files.length > 0) {
-      fileNameDisplay.textContent = certInput.files[0].name;
+
+  fileInput.addEventListener("change", () => {
+    const files = fileInput.files;
+    if (files.length > 0) {
+      fileNameDisplay.textContent = files[0].name;
     } else {
       fileNameDisplay.textContent = "";
     }
   });
 
-  // Form submission - for now just an alert and redirect
+  // Form validation & submission simulation
   const form = document.getElementById("signup-form");
-  form.addEventListener("submit", async function(e) {
+
+  form.addEventListener("submit", (e) => {
     e.preventDefault();
-    if(!form.checkValidity()) {
+
+    // Use HTML5 validation API
+    if (!form.checkValidity()) {
       form.reportValidity();
       return;
     }
 
-    // TODO: Replace alert with actual API call for real sign up.
-    alert(currentLang === "en" ? "Signed up successfully! Redirecting..." : "تم التسجيل بنجاح! جاري التحويل...");
+    // Additional pattern validation for whatsapp and IBAN
+    const whatsapp = form.whatsapp.value.trim();
+    const iban = form.iban.value.trim().toUpperCase();
 
-    setTimeout(() => window.location.href = "subscription.html", 150);
+    const whatsappRegex = /^\+?[0-9]{7,15}$/;
+    const ibanRegex = /^[A-Z0-9]{15,34}$/;
+
+    if (!whatsappRegex.test(whatsapp)) {
+      alert(currentLang === "en" ? "Please enter a valid WhatsApp number." : "يرجى إدخال رقم واتساب صحيح.");
+      form.whatsapp.focus();
+      return;
+    }
+
+    if (!ibanRegex.test(iban)) {
+      alert(currentLang === "en" ? "Please enter a valid IBAN number." : "يرجى إدخال رقم آيبان صحيح.");
+      form.iban.focus();
+      return;
+    }
+
+    // Check file uploaded
+    if (!fileInput.files.length) {
+      alert(currentLang === "en" ? "Please upload your certificate." : "يرجى تحميل شهادتك.");
+      fileInput.focus();
+      return;
+    }
+
+    // If all good, show success message
+    alert(currentLang === "en" ? "Sign up successful!" : "تم التسجيل بنجاح!");
+
+    // Here you can add code to send data to your backend or Firebase
+
+    form.reset();
+    fileNameDisplay.textContent = "";
   });
 </script>
 </body>
