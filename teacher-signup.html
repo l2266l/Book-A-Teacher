@@ -11,6 +11,7 @@
       padding: 20px;
       color: black;
       transition: direction 0.3s ease;
+      margin: 0;
     }
     h1 {
       text-align: center;
@@ -18,7 +19,7 @@
     }
     form {
       max-width: 600px;
-      margin: auto;
+      margin: 30px auto;
       background: white;
       padding: 20px;
       border-radius: 12px;
@@ -197,48 +198,63 @@
 
     // Translate select options (subjects)
     const subjectSelect = document.getElementById("subject-select");
+    const oldValueSubject = subjectSelect.value;
     subjectSelect.options.length = 0;
     subjects[currentLang].forEach((text, i) => {
       const option = document.createElement("option");
-      option.text = text;
-      option.value = i === 0 ? "" : subjectSelect.options[i - 1]?.value || text.toLowerCase();
-      option.disabled = i === 0;
-      option.selected = i === 0;
-      subjectSelect.add(option);
+      option.value = i === 0 ? "" : subjectSelect.options[i] ? subjectSelect.options[i].value : "";
+      option.textContent = text;
+      if(i === 0) option.disabled = true;
+      if(i === 0) option.selected = true;
+      // Set value for actual subjects except placeholder
+      if(i > 0) option.value = ["physics","mathematics","biology","chemistry","science","arabic","english","french","chinese","islamic"][i-1];
+      subjectSelect.appendChild(option);
     });
+    if(oldValueSubject) subjectSelect.value = oldValueSubject;
 
-    // Translate grade options
+    // Translate grade select options
     const gradeSelect = document.getElementById("grade-select");
+    const oldValueGrade = gradeSelect.value;
     gradeSelect.options.length = 0;
     grades[currentLang].forEach((text, i) => {
       const option = document.createElement("option");
-      option.text = text;
-      option.value = i === 0 ? "" : grades.en[i];
-      option.disabled = i === 0;
-      option.selected = i === 0;
-      gradeSelect.add(option);
+      option.value = i === 0 ? "" : gradeSelect.options[i] ? gradeSelect.options[i].value : "";
+      option.textContent = text;
+      if(i === 0) option.disabled = true;
+      if(i === 0) option.selected = true;
+      if(i > 0) option.value = "Grade" + i;
+      gradeSelect.appendChild(option);
     });
+    if(oldValueGrade) gradeSelect.value = oldValueGrade;
 
-    // Translate gender options
+    // Translate gender select options
     const genderSelect = document.getElementById("gender-select");
+    const oldValueGender = genderSelect.value;
     genderSelect.options.length = 0;
     genders[currentLang].forEach((text, i) => {
       const option = document.createElement("option");
-      option.text = text;
-      option.value = i === 0 ? "" : genders.en[i].toLowerCase();
-      option.disabled = i === 0;
-      option.selected = i === 0;
-      genderSelect.add(option);
+      option.value = i === 0 ? "" : genderSelect.options[i] ? genderSelect.options[i].value : "";
+      option.textContent = text;
+      if(i === 0) option.disabled = true;
+      if(i === 0) option.selected = true;
+      if(i === 1) option.value = "mr";
+      if(i === 2) option.value = "ms";
+      genderSelect.appendChild(option);
     });
+    if(oldValueGender) genderSelect.value = oldValueGender;
 
-    // Change language toggle button text
-    langToggle.textContent = currentLang === "en" ? "عربي" : "English";
-
-    // Set page direction
-    htmlEl.dir = currentLang === "en" ? "ltr" : "rtl";
-
-    // Adjust text alignment for form
-    document.body.style.textAlign = currentLang === "en" ? "left" : "right";
+    // Adjust direction and lang attribute
+    if(currentLang === "ar") {
+      htmlEl.lang = "ar";
+      htmlEl.dir = "rtl";
+      document.body.style.textAlign = "right";
+      langToggle.textContent = "English";
+    } else {
+      htmlEl.lang = "en";
+      htmlEl.dir = "ltr";
+      document.body.style.textAlign = "left";
+      langToggle.textContent = "عربي";
+    }
   }
 
   langToggle.addEventListener("click", () => {
@@ -246,39 +262,34 @@
     translatePage();
   });
 
-  // Initialize language
+  // Initialize placeholders and labels
   translatePage();
 
-  // Show selected file name for certificate upload
-  const fileInput = document.getElementById("certificate-input");
+  // Show selected file name
+  const certInput = document.getElementById("certificate-input");
   const fileNameDisplay = document.getElementById("file-name");
-  fileInput.addEventListener("change", () => {
-    const file = fileInput.files[0];
-    if (file) {
-      fileNameDisplay.textContent = file.name;
+  certInput.addEventListener("change", () => {
+    if(certInput.files.length > 0) {
+      fileNameDisplay.textContent = certInput.files[0].name;
     } else {
       fileNameDisplay.textContent = "";
     }
   });
 
-  // Form submission handler
+  // Form submission - for now just an alert and redirect
   const form = document.getElementById("signup-form");
-  form.addEventListener("submit", function (e) {
+  form.addEventListener("submit", async function(e) {
     e.preventDefault();
-
-    if (!form.checkValidity()) {
-      // Show built-in validation UI
+    if(!form.checkValidity()) {
       form.reportValidity();
       return;
     }
 
+    // TODO: Replace alert with actual API call for real sign up.
     alert(currentLang === "en" ? "Signed up successfully! Redirecting..." : "تم التسجيل بنجاح! جاري التحويل...");
-    // Redirect after a short delay for alert to show
-    setTimeout(() => {
-      window.location.href = "subscription.html";
-    }, 150);
+
+    setTimeout(() => window.location.href = "subscription.html", 150);
   });
 </script>
-
 </body>
 </html>
