@@ -261,24 +261,18 @@
   // Escape HTML for security
   function escapeHTML(str) {
     if (!str) return "";
-    return str.replace(/[&<>"']/g, (m) => ({
-      "&": "&amp;",
-      "<": "&lt;",
-      ">": "&gt;",
-      '"': "&quot;",
-      "'": "&#39;",
-    })[m]);
+    return str.replace(/[&<>"']/g, (m) => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;", "'":"&#39;"}[m]));
   }
 
   // Load data from localStorage safely
   function loadData(key) {
     try {
       const data = localStorage.getItem(key);
-      if (!data) return [];
+      if (!data) return null;
       return JSON.parse(data);
     } catch (err) {
       console.error(`Failed to parse localStorage item "${key}":`, err);
-      return [];
+      return null;
     }
   }
 
@@ -293,8 +287,8 @@
 
   // Render counts
   function renderCounts() {
-    const parents = loadData("parents");
-    const teachers = loadData("teachers");
+    const parents = loadData("parents") || [];
+    const teachers = loadData("teachers") || [];
     const visits = Number(localStorage.getItem("visitCount") || 0);
 
     parentCountEl.textContent = `Parent/Student Accounts: ${parents.length}`;
@@ -302,11 +296,14 @@
     visitCountEl.textContent = `Website Visits: ${visits}`;
   }
 
-  // Render teachers table
-  function renderTeachers() {
-    const teachers = loadData("teachers");
+  // Render teachers table with certificate and payment images
+  function renderTeachersTable() {
+    const teachers = loadData("teachers") || [];
+    const certificates = loadData("certificates") || {}; // object: email -> cert URL
+    const payments = loadData("payments") || {};         // object: email -> payment receipt URL
 
     teachersTableBody.innerHTML = "";
+
     if (teachers.length === 0) {
       noTeachersMsg.style.display = "block";
       return;
@@ -314,100 +311,118 @@
       noTeachersMsg.style.display = "none";
     }
 
-    teachers.forEach((teacher, idx) => {
-      const name = escapeHTML(teacher.name);
-      const email = escapeHTML(teacher.email);
-      const certUrl = teacher.certificateUrl || "";
-      const receiptUrl = teacher.receiptUrl || "";
-      const approved = Boolean(teacher.approved);
+    teachers.forEach((teacher, index) => {
+      const { name, email, approved } = teacher;
+      const certURL = certificates[email] || "";
+      const paymentURL = payments[email] || "";
 
-      const certHTML = certUrl
-        ? `<a href="${encodeURI(certUrl)}" target="_blank" rel="noopener noreferrer"><img src="${encodeURI(
-            certUrl
-          )}" alt="Certificate Preview" class="preview" loading="lazy"></a>`
-        : "N/A";
-
-      const receiptHTML = receiptUrl
-        ? `<a href="${encodeURI(receiptUrl)}" target="_blank" rel="noopener noreferrer"><img src="${encodeURI(
-            receiptUrl
-          )}" alt="Receipt Preview" class="preview" loading="lazy"></a>`
-        : "N/A";
-
-      const statusClass = approved ? "approved" : "pending";
-      const statusText = approved ? "Approved" : "Pending";
-
-      // Button text & class toggle based on current approval
-      const btnClass = approved ? "undo" : "approve";
-      const btnText = approved ? "Undo Approval" : "Approve";
-
-      // Build row
+      // Create row
       const tr = document.createElement("tr");
 
-      tr.innerHTML = `
-        <td>${name}</td>
-        <td><a href="mailto:${email}">${email}</a></td>
-        <td>${certHTML}</td>
-        <td>${receiptHTML}</td>
-        <td><span class="status-badge ${statusClass}">${statusText}</span></td>
-        <td><button class="approve-btn ${btnClass}" data-idx="${idx}" aria-label="${btnText} for ${name}">${btnText}</button></td>
-      `;
+      // Name
+      const tdName = document.createElement("td");
+      tdName.textContent = name || "-";
+      tr.appendChild(tdName);
+
+      // Email
+      const tdEmail = document.createElement("td");
+      tdEmail.textContent = email || "-";
+      tr.appendChild(tdEmail);
+
+      // Certificate Image
+      const tdCert = document.createElement("td");
+      if (certURL) {
+        const imgCert = document.createElement("img");
+        imgCert.src = certURL;
+        imgCert.alt = `Certificate of ${name}`;
+        imgCert.className = "preview";
+        tdCert.appendChild(imgCert);
+      } else {
+        tdCert.textContent = "Not uploaded";
+        tdCert.style.color = "#888";
+      }
+      tr.appendChild(tdCert);
+
+      // Payment Receipt Image
+      const tdPayment = document.createElement("td");
+      if (paymentURL) {
+        const imgPay = document.createElement("img");
+        imgPay.src = paymentURL;
+        imgPay.alt = `Payment Receipt of ${name}`;
+        imgPay.className = "preview";
+        tdPayment.appendChild(imgPay);
+      } else {
+        tdPayment.textContent = "Not uploaded";
+        tdPayment.style.color = "#888";
+      }
+      tr.appendChild(tdPayment);
+
+      // Status
+      const tdStatus = document.createElement("td");
+      const statusSpan = document.createElement("span");
+      statusSpan.className = `status-badge ${approved ? "approved" : "pending"}`;
+      statusSpan.textContent = approved ? "Approved" : "Pending";
+      tdStatus.appendChild(statusSpan);
+      tr.appendChild(tdStatus);
+
+      // Action (approve / undo)
+      const tdAction = document.createElement("td");
+      const btn = document.createElement("button");
+      btn.className = `approve-btn ${approved ? "undo" : "approve"}`;
+      btn.textContent = approved ? "Undo Approve" : "Approve";
+      btn.setAttribute("aria-label", `${btn.textContent} ${name}`);
+
+      btn.addEventListener("click", () => {
+        toggleApproval(index);
+      });
+
+      tdAction.appendChild(btn);
+      tr.appendChild(tdAction);
 
       teachersTableBody.appendChild(tr);
     });
-
-    // Add event listeners for buttons
-    document.querySelectorAll(".approve-btn").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        const index = Number(btn.getAttribute("data-idx"));
-        toggleApproval(index);
-      });
-    });
   }
 
-  // Toggle approval status of teacher by index
+  // Toggle approval status and save
   function toggleApproval(index) {
-    let teachers = loadData("teachers");
+    const teachers = loadData("teachers") || [];
     if (!teachers[index]) return;
 
     teachers[index].approved = !teachers[index].approved;
     saveData("teachers", teachers);
 
-    renderTeachers();
-    renderCounts();
+    renderTeachersTable();
   }
 
   // Handle login
-  function handleLogin() {
-    const pwd = passwordInput.value.trim();
-    if (pwd === ADMIN_PASSWORD) {
+  loginBtn.addEventListener("click", () => {
+    const entered = passwordInput.value.trim();
+    if (entered === ADMIN_PASSWORD) {
       loginSection.style.display = "none";
       adminContent.style.display = "block";
       loginError.style.display = "none";
       passwordInput.value = "";
-
       renderCounts();
-      renderTeachers();
+      renderTeachersTable();
     } else {
       loginError.style.display = "block";
       passwordInput.value = "";
       passwordInput.focus();
     }
-  }
+  });
 
-  // On pressing Enter in password input, login
-  passwordInput.addEventListener("keypress", (e) => {
+  // Optional: allow Enter key on password input
+  passwordInput.addEventListener("keyup", (e) => {
     if (e.key === "Enter") {
-      handleLogin();
+      loginBtn.click();
     }
   });
 
-  // Login button click
-  loginBtn.addEventListener("click", handleLogin);
+  // On page load, check if admin is logged in (optional)
+  // For simplicity, no persistent login now
 
-  // Optional: Check if already logged in (simple session) - can be added here if needed
-
-  // Initial page: only login visible
 })();
 </script>
+
 </body>
 </html>
