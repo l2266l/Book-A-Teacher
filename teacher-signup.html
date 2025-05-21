@@ -157,7 +157,7 @@
         "submit-button": "تسجيل",
         "language-toggle": "English",
         "page-title": "تسجيل المعلمين",
-        "title-options": ["الآنسة - معلمة", "السيد - معلم"]
+        "title-options": ["المعلمة", "الاستاذ"]
       },
       en: {
         "form-title": "Teacher Sign Up",
@@ -235,6 +235,66 @@
       appId: "YOUR_APP_ID"
     };
     firebase.initializeApp(firebaseConfig);
+
+    const storage = firebase.storage();
+    const database = firebase.database();
+
+    const form = document.getElementById('signup-form');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const name = document.getElementById('name').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value.trim();
+      const whatsapp = document.getElementById('whatsapp').value.trim();
+      const bank = document.getElementById('bank').value.trim();
+      const iban = document.getElementById('iban').value.trim();
+      const title = document.getElementById('title').value;
+      const subject = document.getElementById('subject').value;
+      const grade = document.getElementById('grade').value;
+      const certificateFile = document.getElementById('certificate').files[0];
+
+      if (!certificateFile) {
+        alert("Please upload your certificate.");
+        return;
+      }
+
+      try {
+        // Upload certificate to Firebase Storage
+        const storageRef = storage.ref();
+        const fileRef = storageRef.child(`certificates/${email}_${Date.now()}_${certificateFile.name}`);
+        const snapshot = await fileRef.put(certificateFile);
+        const downloadURL = await snapshot.ref.getDownloadURL();
+
+        // Save all form data + certificate URL to Firebase Realtime Database
+        const teacherData = {
+          name,
+          email,
+          password,  // You might want to hash it in production
+          whatsapp,
+          bank,
+          iban,
+          title,
+          subject,
+          grade,
+          certificateURL: downloadURL,
+          createdAt: new Date().toISOString()
+        };
+
+        // Use email as key after replacing '.' to ',' or use push for unique key
+        const safeEmailKey = email.replace(/\./g, ',');
+        await database.ref('teachers/' + safeEmailKey).set(teacherData);
+
+        alert("Sign up successful!");
+
+        form.reset();
+
+      } catch (error) {
+        console.error("Error uploading certificate or saving data:", error);
+        alert("Error during sign up. Please try again.");
+      }
+    });
   </script>
 </body>
 
