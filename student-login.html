@@ -4,7 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Parent or Student Login</title>
-  <script src="https://accounts.google.com/gsi/client" async defer></script>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -28,6 +27,7 @@
       width: 90%;
       max-width: 400px;
       text-align: center;
+      position: relative;
     }
     form input {
       display: block;
@@ -51,14 +51,6 @@
     form button:hover,
     .lang-toggle-btn:hover {
       background-color: #e5d7b7;
-    }
-    .or-divider {
-      margin: 1rem 0;
-      font-weight: bold;
-      color: #666;
-    }
-    #googleSignInButton {
-      margin-top: 1rem;
     }
     .signup-link {
       margin-top: 1rem;
@@ -85,10 +77,6 @@
   <div class="login-container">
     <h1 id="title">Parent or Student Login</h1>
 
-    <div id="googleSignInButton"></div>
-
-    <div class="or-divider" id="orText">or</div>
-
     <form onsubmit="manualLogin(event)">
       <input type="email" placeholder="Email" id="email" required />
       <input type="password" placeholder="Password" id="password" required />
@@ -107,7 +95,6 @@
     function toggleLanguage() {
       if (currentLang === 'en') {
         document.getElementById('title').innerText = 'تسجيل الدخول لولي الأمر أو الطالب';
-        document.getElementById('orText').innerText = 'أو';
         document.getElementById('email').placeholder = 'البريد الإلكتروني';
         document.getElementById('password').placeholder = 'كلمة المرور';
         document.getElementById('fullName').placeholder = 'الاسم الكامل';
@@ -116,7 +103,6 @@
         currentLang = 'ar';
       } else {
         document.getElementById('title').innerText = 'Parent or Student Login';
-        document.getElementById('orText').innerText = 'or';
         document.getElementById('email').placeholder = 'Email';
         document.getElementById('password').placeholder = 'Password';
         document.getElementById('fullName').placeholder = 'Full Name';
@@ -125,31 +111,6 @@
         currentLang = 'en';
       }
     }
-
-    function handleCredentialResponse(response) {
-      const idToken = response.credential;
-      console.log("Encoded JWT ID token: " + idToken);
-      localStorage.setItem('isLoggedIn', 'true');
-      localStorage.setItem('userRole', 'student');
-      window.location.href = 'index.html';
-    }
-
-    function renderGoogleButton() {
-      google.accounts.id.initialize({
-        client_id: '517961306953-uc2pmelkvuq0ji44moebff6786hsci21.apps.googleusercontent.com',
-        callback: handleCredentialResponse,
-      });
-      google.accounts.id.renderButton(
-        document.getElementById("googleSignInButton"),
-        { theme: "outline", size: "large" }
-      );
-    }
-
-    window.onload = () => {
-      if (window.google && google.accounts) {
-        renderGoogleButton();
-      }
-    };
 
     function manualLogin(event) {
       event.preventDefault();
