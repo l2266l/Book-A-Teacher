@@ -3,330 +3,428 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Teacher Signup</title>
+  <title>Teacher Sign Up</title>
   <style>
     body {
       font-family: Arial, sans-serif;
       background-color: #C9E4DE;
-      text-align: center;
       padding: 20px;
-      margin: 0;
-      position: relative;
-      min-height: 100vh;
+      color: black;
+      transition: direction 0.3s ease;
     }
-    .signup-container {
-      background-color: white;
-      border-radius: 12px;
+    h1 {
+      text-align: center;
+      color: black;
+    }
+    form {
+      max-width: 600px;
+      margin: auto;
+      background: white;
       padding: 20px;
-      max-width: 500px;
-      margin: 60px auto 40px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-      text-align: left;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(27, 73, 101, 0.2);
+      color: black;
+    }
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: bold;
+      color: black;
     }
     input, select {
-      display: block;
       width: 100%;
-      padding: 10px;
-      margin: 10px 0;
+      padding: 8px;
+      margin-top: 5px;
+      box-sizing: border-box;
       border-radius: 6px;
       border: 1px solid #ccc;
-      box-sizing: border-box;
+      color: black;
+      font-size: 1rem;
     }
-    .language-toggle {
+    .days-checkboxes label {
+      font-weight: normal;
+      margin-right: 10px;
+      color: black;
+      user-select: none;
+      cursor: pointer;
+    }
+    .days-checkboxes {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    button {
+      margin-top: 20px;
+      background-color: #FAEDCB;
+      color: black;
+      border: none;
+      padding: 12px;
+      font-size: 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      width: 100%;
+      font-weight: bold;
+      user-select: none;
+      transition: background-color 0.3s ease;
+    }
+    button:hover {
+      background-color: #e6d8a5;
+    }
+    #file-name {
+      margin-top: 5px;
+      font-style: italic;
+      color: black;
+    }
+    #lang-toggle {
       position: fixed;
       top: 20px;
       right: 20px;
+      background: #FAEDCB;
+      color: black;
+      border: none;
       padding: 8px 14px;
-      background-color: #FAEDCB;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
       font-weight: bold;
-      color: black;
-      box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
-      transition: background-color 0.3s;
-      z-index: 100;
-    }
-    .language-toggle:hover {
-      background-color: #e5d6b0;
-    }
-    #submit-button {
-      background-color: #FAEDCB;
-      color: black;
-      border: none;
-      padding: 10px;
-      margin-top: 10px;
       border-radius: 6px;
       cursor: pointer;
-      font-weight: bold;
+      font-size: 14px;
+      max-width: 120px;
+      white-space: nowrap;
+      user-select: none;
+      z-index: 1000;
+      transition: background-color 0.3s ease;
     }
-    #submit-button:hover {
-      background-color: #e5d6b0;
-    }
-    #file-label {
-      display: block;
-      padding: 10px;
-      background-color: #FAEDCB;
-      color: black;
-      border-radius: 6px;
-      cursor: pointer;
-      margin: 10px 0;
-      width: fit-content;
-    }
-    #file-name {
-      font-size: 0.9em;
-      color: #333;
-      display: inline-block;
-      margin-left: 10px;
-      vertical-align: middle;
-    }
-    .or-divider {
-      margin: 15px 0;
-      font-weight: bold;
-      text-align: center;
-    }
-    .login-link {
-      margin-top: 20px;
-      font-size: 0.95em;
-      text-align: center;
-    }
-    .login-link a {
-      color: #007acc;
-      text-decoration: none;
-      font-weight: bold;
-    }
-    .login-link a:hover {
-      text-decoration: underline;
-    }
-    .day-row {
-      margin-bottom: 10px;
-    }
-    .day-row label {
-      font-weight: bold;
-    }
-    .day-row input[type="checkbox"] {
-      margin-right: 8px;
-      transform: scale(1.2);
-      vertical-align: middle;
-      cursor: pointer;
-    }
-    .day-row input[type="time"] {
-      width: 48%;
-      display: inline-block;
-      margin-top: 6px;
+    #lang-toggle:hover {
+      background-color: #e6d8a5;
     }
   </style>
 </head>
 <body>
-  <button class="language-toggle" onclick="toggleLanguage()" id="langToggleBtn">عربي</button>
 
-  <div class="signup-container">
-    <h2 id="signup-title">Teacher Sign Up</h2>
+<button id="lang-toggle" aria-label="Toggle Language">عربي</button>
+<h1 data-en="Teacher Sign Up" data-ar="تسجيل المعلمين">Teacher Sign Up</h1>
 
-    <form id="signup-form">
-      <input type="text" placeholder="Full Name" id="fullname-input" required />
-      <input type="email" placeholder="Email" id="email-input" required />
-      <input type="password" placeholder="Password" id="password-input" required />
-      
-      <!-- WhatsApp Number Field Added -->
-      <input type="tel" placeholder="WhatsApp Number" id="whatsapp-input" required />
+<form id="signup-form" enctype="multipart/form-data" novalidate>
+  <label for="fullname" data-en="Full Name" data-ar="الاسم الكامل">Full Name</label>
+  <input id="fullname" name="fullname" type="text" required
+         data-placeholder-en="Enter your full name" data-placeholder-ar="أدخل اسمك الكامل" />
 
-      <input type="text" placeholder="IBAN" id="iban-input" required />
-      <input type="text" placeholder="Bank Name" id="bank-input" required />
+  <label for="email" data-en="Email" data-ar="البريد الإلكتروني">Email</label>
+  <input id="email" name="email" type="email" required
+         data-placeholder-en="Enter your email" data-placeholder-ar="أدخل بريدك الإلكتروني" />
 
-      <select id="subject-input" required>
-        <option value="" disabled selected>-- Select Subject --</option>
-        <option value="physics">Physics</option>
-        <option value="mathematics">Mathematics</option>
-        <option value="biology">Biology</option>
-        <option value="chemistry">Chemistry</option>
-        <option value="science">Science</option>
-        <option value="arabic">Arabic</option>
-        <option value="english">English</option>
-        <option value="french">French</option>
-        <option value="chinese">Chinese</option>
-        <option value="islamic_studies">Islamic Studies</option>
-      </select>
+  <label for="password" data-en="Password" data-ar="كلمة المرور">Password</label>
+  <input id="password" name="password" type="password" required minlength="6"
+         data-placeholder-en="Enter password" data-placeholder-ar="أدخل كلمة المرور" />
 
-      <select id="grade-input" required>
-        <option value="" disabled selected>-- Select Grade --</option>
-        <option value="1">1</option>
-        <option value="2">2</option>
-        <option value="3">3</option>
-        <option value="4">4</option>
-        <option value="5">5</option>
-        <option value="6">6</option>
-        <option value="7">7</option>
-        <option value="8">8</option>
-        <option value="9">9</option>
-        <option value="10">10</option>
-        <option value="11">11</option>
-        <option value="12">12</option>
-      </select>
+  <label for="whatsapp" data-en="WhatsApp Number" data-ar="رقم الواتساب">WhatsApp Number</label>
+  <input id="whatsapp" name="whatsapp" type="text" required pattern="^\+?[0-9]{7,15}$"
+         data-placeholder-en="e.g. +971501234567" data-placeholder-ar="مثال: +971501234567" />
 
-      <select id="gender-input" required>
-        <option value="male">Mr</option>
-        <option value="female">Ms</option>
-      </select>
+  <label for="bank" data-en="Bank Name" data-ar="اسم البنك">Bank Name</label>
+  <input id="bank" name="bank" type="text" required
+         data-placeholder-en="Enter bank name" data-placeholder-ar="أدخل اسم البنك" />
 
-      <label id="availability-label"><strong>Availability:</strong></label>
-      <div id="days-container"></div>
+  <label for="iban" data-en="IBAN Number" data-ar="رقم الآيبان">IBAN Number</label>
+  <input id="iban" name="iban" type="text" required pattern="^[A-Z0-9]{15,34}$"
+         data-placeholder-en="Enter IBAN" data-placeholder-ar="أدخل رقم الآيبان" />
 
-      <input type="file" id="certificate-input" accept="image/*,.pdf" required style="display: none;" />
-      <label for="certificate-input" id="file-label">Upload University Certificate</label>
-      <span id="file-name"></span>
+  <label for="subject-select" data-en="Subject" data-ar="المادة">Subject</label>
+  <select name="subject" required id="subject-select">
+    <option value="" disabled selected data-en="Select Subject" data-ar="اختر المادة">Select Subject</option>
+    <option value="physics">Physics</option>
+    <option value="mathematics">Mathematics</option>
+    <option value="biology">Biology</option>
+    <option value="chemistry">Chemistry</option>
+    <option value="science">Science</option>
+    <option value="arabic">Arabic</option>
+    <option value="english">English</option>
+    <option value="french">French</option>
+    <option value="chinese">Chinese</option>
+    <option value="islamic">Islamic Studies</option>
+  </select>
 
-      <!-- Admin checkbox -->
-      <label>
-        <input type="checkbox" id="admin-checkbox" />
-        <span id="admin-label">Request Admin Access</span>
-      </label>
+  <label for="grade-select" data-en="Grade" data-ar="الصف الدراسي">Grade</label>
+  <select name="grade" required id="grade-select">
+    <option value="" disabled selected data-en="Select Grade" data-ar="اختر الصف">Select Grade</option>
+    <option value="Grade1">Grade 1</option>
+    <option value="Grade2">Grade 2</option>
+    <option value="Grade3">Grade 3</option>
+    <option value="Grade4">Grade 4</option>
+    <option value="Grade5">Grade 5</option>
+    <option value="Grade6">Grade 6</option>
+    <option value="Grade7">Grade 7</option>
+    <option value="Grade8">Grade 8</option>
+    <option value="Grade9">Grade 9</option>
+    <option value="Grade10">Grade 10</option>
+    <option value="Grade11">Grade 11</option>
+    <option value="Grade12">Grade 12</option>
+  </select>
 
-      <button type="submit" id="submit-button">Sign Up</button>
-    </form>
+  <label for="gender-select" data-en="Gender" data-ar="اللقب">Gender</label>
+  <select name="gender" required id="gender-select">
+    <option value="" disabled selected data-en="Select Title" data-ar="اختر اللقب">Select Title</option>
+    <option value="mr">Mr</option>
+    <option value="ms">Ms</option>
+  </select>
 
-    <div class="login-link" id="loginText">
-      Already have an account? <a href="login.html">Login</a>
-    </div>
+  <label id="availability-label" data-en="Availability (Select days and times)" data-ar="أوقات التوفر (اختر الأيام والأوقات)">Select workdays</label>
+  <div class="days-checkboxes" id="days-container" role="group" aria-label="Select days">
+    <label><input type="checkbox" value="Sunday" name="days" /> Sunday</label>
+    <label><input type="checkbox" value="Monday" name="days" /> Monday</label>
+    <label><input type="checkbox" value="Tuesday" name="days" /> Tuesday</label>
+    <label><input type="checkbox" value="Wednesday" name="days" /> Wednesday</label>
+    <label><input type="checkbox" value="Thursday" name="days" /> Thursday</label>
+    <label><input type="checkbox" value="Friday" name="days" /> Friday</label>
+    <label><input type="checkbox" value="Saturday" name="days" /> Saturday</label>
   </div>
 
-  <script>
-    let isArabic = false;
+  <label for="certificate-input" data-en="Upload Certificate" data-ar="تحميل الشهادة">Upload Certificate</label>
+  <input id="certificate-input" name="certificate" type="file" accept=".pdf,.jpg,.jpeg,.png" aria-describedby="file-name" />
+  <div id="file-name"></div>
 
-    const daysEn = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-    const daysAr = ["الأحد", "الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"];
+  <button type="submit" data-en="Sign Up" data-ar="تسجيل">Sign Up</button>
+</form>
 
-    function renderDays() {
-      const container = document.getElementById("days-container");
-      container.innerHTML = "";
-      const dayNames = isArabic ? daysAr : daysEn;
+<script>
+  const langToggle = document.getElementById("lang-toggle");
+  const htmlEl = document.documentElement;
+  const body = document.body;
+  let currentLang = "en";
 
-      dayNames.forEach((day, index) => {
-        const div = document.createElement("div");
-        div.className = "day-row";
-        div.innerHTML = `
-          <label for="day-${index}">
-            <input type="checkbox" id="day-${index}" onchange="toggleTimeInputs(${index})"> ${day}
-          </label><br/>
-          <input type="time" id="from-${index}" placeholder="${isArabic ? 'من' : 'From'}" disabled />
-          <input type="time" id="to-${index}" placeholder="${isArabic ? 'إلى' : 'To'}" disabled />
-        `;
-        container.appendChild(div);
-      });
+  function updateLanguage(lang) {
+    currentLang = lang;
+    htmlEl.lang = lang;
+    if (lang === "ar") {
+      htmlEl.dir = "rtl";
+      langToggle.textContent = "English";
+      body.style.textAlign = "right";
+    } else {
+      htmlEl.dir = "ltr";
+      langToggle.textContent = "عربي";
+      body.style.textAlign = "left";
     }
 
-    function toggleTimeInputs(index) {
-      const checkbox = document.getElementById(`day-${index}`);
-      const fromInput = document.getElementById(`from-${index}`);
-      const toInput = document.getElementById(`to-${index}`);
-      const isChecked = checkbox.checked;
-      fromInput.disabled = !isChecked;
-      toInput.disabled = !isChecked;
-    }
-
-    const fileInput = document.getElementById("certificate-input");
-    const fileLabel = document.getElementById("file-label");
-    const fileNameSpan = document.getElementById("file-name");
-
-    fileInput.addEventListener("change", () => {
-      if (fileInput.files.length > 0) {
-        fileNameSpan.textContent = fileInput.files[0].name;
+    // Translate text content and placeholders
+    document.querySelectorAll("[data-en]").forEach(el => {
+      if (lang === "ar") {
+        if (el.tagName === "INPUT" || el.tagName === "SELECT") {
+          if (el.hasAttribute("data-placeholder-ar")) {
+            el.placeholder = el.getAttribute("data-placeholder-ar");
+          }
+        } else {
+          el.textContent = el.getAttribute("data-ar");
+        }
       } else {
-        fileNameSpan.textContent = "";
+        if (el.tagName === "INPUT" || el.tagName === "SELECT") {
+          if (el.hasAttribute("data-placeholder-en")) {
+            el.placeholder = el.getAttribute("data-placeholder-en");
+          }
+        } else {
+          el.textContent = el.getAttribute("data-en");
+        }
       }
     });
 
-    function updateFileLabel() {
-      fileLabel.innerText = isArabic ? "ارفع شهادة الجامعة" : "Upload University Certificate";
+    // Translate options inside selects separately (subject, grade, gender)
+    const subjects = {
+      en: ["Select Subject", "Physics", "Mathematics", "Biology", "Chemistry", "Science", "Arabic", "English", "French", "Chinese", "Islamic Studies"],
+      ar: ["اختر المادة", "الفيزياء", "الرياضيات", "الأحياء", "الكيمياء", "العلوم", "العربية", "الإنجليزية", "الفرنسية", "الصينية", "الدراسات الإسلامية"]
+    };
+    const grades = {
+      en: ["Select Grade", "Grade 1", "Grade 2", "Grade 3", "Grade 4", "Grade 5", "Grade 6", "Grade 7", "Grade 8", "Grade 9", "Grade 10", "Grade 11", "Grade 12"],
+      ar: ["اختر الصف", "الصف 1", "الصف 2", "الصف 3", "الصف 4", "الصف 5", "الصف 6", "الصف 7", "الصف 8", "الصف 9", "الصف 10", "الصف 11", "الصف 12"]
+    };
+    const genders = {
+      en: ["Select Title", "Mr", "Ms"],
+      ar: ["اختر اللقب", "السيد", "السيدة"]
+    };
+
+    function updateSelectOptions(selectId, options) {
+      const select = document.getElementById(selectId);
+      if (!select) return;
+      const currentVal = select.value;
+      select.innerHTML = "";
+      options.forEach((opt, idx) => {
+        const option = document.createElement("option");
+        option.value = idx === 0 ? "" : select.options[idx] ? select.options[idx].value : opt.toLowerCase();
+        option.textContent = opt;
+        if (idx === 0) option.disabled = true;
+        if (select.value === option.value) option.selected = true;
+        select.appendChild(option);
+      });
+      if (currentVal && [...select.options].some(o => o.value === currentVal)) {
+        select.value = currentVal;
+      }
     }
 
-    function toggleLanguage() {
-      isArabic = !isArabic;
-      document.documentElement.lang = isArabic ? "ar" : "en";
-      document.documentElement.dir = isArabic ? "rtl" : "ltr";
+    updateSelectOptions("subject-select", subjects[lang]);
+    updateSelectOptions("grade-select", grades[lang]);
+    updateSelectOptions("gender-select", genders[lang]);
 
-      document.getElementById("signup-title").innerText = isArabic ? "تسجيل المعلم" : "Teacher Sign Up";
-      document.getElementById("fullname-input").placeholder = isArabic
+    // Days translation
+    const daysContainer = document.getElementById("days-container");
+    const daysLabels = daysContainer.querySelectorAll("label");
+    const daysText = {
+      en: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+      ar: ["الأحد", "الإثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"]
+    };
+    daysLabels.forEach((label, idx) => {
+      label.childNodes[1].nodeValue = " " + daysText[lang][idx];
+    });
 
+    // Translate button text
+    document.querySelector("button[type='submit']").textContent = lang === "ar" ? "تسجيل" : "Sign Up";
 
-
-
-
-ChatGPT said:
-? "الاسم الكامل" : "Full Name";
-document.getElementById("email-input").placeholder = isArabic ? "البريد الإلكتروني" : "Email";
-document.getElementById("password-input").placeholder = isArabic ? "كلمة المرور" : "Password";
-document.getElementById("whatsapp-input").placeholder = isArabic ? "رقم واتساب" : "WhatsApp Number";
-document.getElementById("iban-input").placeholder = isArabic ? "رقم الآيبان" : "IBAN";
-document.getElementById("bank-input").placeholder = isArabic ? "اسم البنك" : "Bank Name";
-
-pgsql
-Copy
-Edit
-  const subjectSelect = document.getElementById("subject-input");
-  if (isArabic) {
-    subjectSelect.options[0].text = "-- اختر المادة --";
-    subjectSelect.options[1].text = "الفيزياء";
-    subjectSelect.options[2].text = "الرياضيات";
-    subjectSelect.options[3].text = "الأحياء";
-    subjectSelect.options[4].text = "الكيمياء";
-    subjectSelect.options[5].text = "العلوم";
-    subjectSelect.options[6].text = "العربية";
-    subjectSelect.options[7].text = "الإنجليزية";
-    subjectSelect.options[8].text = "الفرنسية";
-    subjectSelect.options[9].text = "الصينية";
-    subjectSelect.options[10].text = "الدراسات الإسلامية";
-  } else {
-    subjectSelect.options[0].text = "-- Select Subject --";
-    subjectSelect.options[1].text = "Physics";
-    subjectSelect.options[2].text = "Mathematics";
-    subjectSelect.options[3].text = "Biology";
-    subjectSelect.options[4].text = "Chemistry";
-    subjectSelect.options[5].text = "Science";
-    subjectSelect.options[6].text = "Arabic";
-    subjectSelect.options[7].text = "English";
-    subjectSelect.options[8].text = "French";
-    subjectSelect.options[9].text = "Chinese";
-    subjectSelect.options[10].text = "Islamic Studies";
+    // Translate availability label
+    const availabilityLabel = document.getElementById("availability-label");
+    availabilityLabel.textContent = lang === "ar" ? "أوقات التوفر (اختر الأيام والأوقات)" : "Availability (Select days and times)";
   }
 
-  const gradeSelect = document.getElementById("grade-input");
-  if (isArabic) {
-    gradeSelect.options[0].text = "-- اختر الصف --";
-  } else {
-    gradeSelect.options[0].text = "-- Select Grade --";
+  langToggle.addEventListener("click", () => {
+    if (currentLang === "en") {
+      updateLanguage("ar");
+    } else {
+      updateLanguage("en");
+    }
+  });
+
+  // Initialize language on page load
+  updateLanguage("en");
+
+  // Manage dynamic time inputs per selected day
+  const daysContainer = document.getElementById("days-container");
+  const timeInputsDiv = document.getElementById("time-inputs");
+
+  function createTimeInputs(day) {
+    // Create container div
+    const div = document.createElement("div");
+    div.classList.add("time-range");
+    div.dataset.day = day;
+
+    const labelStart = document.createElement("label");
+    labelStart.textContent = currentLang === "ar" ? "وقت البدء لـ " + day : "Start Time for " + day;
+    labelStart.setAttribute("for", `start-${day}`);
+
+    const startInput = document.createElement("input");
+    startInput.type = "time";
+    startInput.id = `start-${day}`;
+    startInput.name = `start-${day}`;
+    startInput.required = true;
+
+    const labelEnd = document.createElement("label");
+    labelEnd.textContent = currentLang === "ar" ? "وقت الانتهاء لـ " + day : "End Time for " + day;
+    labelEnd.setAttribute("for", `end-${day}`);
+
+    const endInput = document.createElement("input");
+    endInput.type = "time";
+    endInput.id = `end-${day}`;
+    endInput.name = `end-${day}`;
+    endInput.required = true;
+
+    // Append inputs & labels
+    // To align nicely, group labels + inputs side by side
+    div.appendChild(labelStart);
+    div.appendChild(startInput);
+    div.appendChild(labelEnd);
+    div.appendChild(endInput);
+
+    return div;
   }
 
-  const genderSelect = document.getElementById("gender-input");
-  if (isArabic) {
-    genderSelect.options[0].text = "السيد";
-    genderSelect.options[1].text = "السيدة";
-  } else {
-    genderSelect.options[0].text = "Mr";
-    genderSelect.options[1].text = "Ms";
+  function updateTimeInputsLang() {
+    // Update labels text for existing time inputs on language toggle
+    const timeDivs = timeInputsDiv.querySelectorAll(".time-range");
+    timeDivs.forEach(div => {
+      const day = div.dataset.day;
+      const labels = div.querySelectorAll("label");
+      if (labels.length >= 2) {
+        labels[0].textContent = currentLang === "ar" ? "وقت البدء لـ " + day : "Start Time for " + day;
+        labels[1].textContent = currentLang === "ar" ? "وقت الانتهاء لـ " + day : "End Time for " + day;
+      }
+    });
   }
 
-  document.getElementById("availability-label").innerText = isArabic ? "التوافر:" : "Availability:";
-  document.getElementById("admin-label").innerText = isArabic ? "طلب صلاحيات المدير" : "Request Admin Access";
-  document.getElementById("submit-button").innerText = isArabic ? "تسجيل" : "Sign Up";
+  daysContainer.addEventListener("change", e => {
+    if (e.target.name === "days") {
+      if (e.target.checked) {
+        const day = e.target.value;
+        const timeInputs = createTimeInputs(day);
+        timeInputsDiv.appendChild(timeInputs);
+        updateTimeInputsLang();
+      } else {
+        // Remove time inputs for unchecked day
+        const existingDiv = timeInputsDiv.querySelector(`div[data-day="${e.target.value}"]`);
+        if (existingDiv) existingDiv.remove();
+      }
+    }
+  });
 
-  const loginText = document.getElementById("loginText");
-  loginText.innerHTML = isArabic
-    ? 'هل لديك حساب؟ <a href="login.html">تسجيل الدخول</a>'
-    : 'Already have an account? <a href="login.html">Login</a>';
+  // File input show file name
+  const certInput = document.getElementById("certificate-input");
+  const fileNameDiv = document.getElementById("file-name");
 
-  updateFileLabel();
-  renderDays();
+  certInput.addEventListener("change", () => {
+    const files = certInput.files;
+    if (files.length > 0) {
+      fileNameDiv.textContent = files[0].name;
+    } else {
+      fileNameDiv.textContent = "";
+    }
+  });
 
-  document.getElementById("langToggleBtn").innerText = isArabic ? "English" : "عربي";
-}
+  // Basic form validation on submit
+  const form = document.getElementById("signup-form");
+  form.addEventListener("submit", e => {
+    e.preventDefault();
 
-// Initialize on load
-renderDays();
+    // Check required inputs manually since novalidate is set
+    const requiredFields = ["fullname", "email", "password", "whatsapp", "bank", "iban", "subject-select", "grade-select", "gender-select"];
+    let valid = true;
+    let messages = [];
 
-// Form submission dummy handler
-document.getElementById("signup-form").addEventListener("submit", function(e) {
-  e.preventDefault();
-  alert(isArabic ? "تم الإرسال (مثال)" : "Form submitted (example)");
-});
-</script> </body> </html> ```
+    requiredFields.forEach(id => {
+      const field = document.getElementById(id);
+      if (!field || !field.value.trim()) {
+        valid = false;
+        messages.push((currentLang === "ar" ? "يرجى تعبئة " : "Please fill in ") + (field.previousElementSibling.textContent));
+      }
+    });
+
+    // Check days selected and corresponding time inputs
+    const checkedDays = form.querySelectorAll("input[name='days']:checked");
+    if (checkedDays.length === 0) {
+      valid = false;
+      messages.push(currentLang === "ar" ? "يرجى اختيار أيام التوفر" : "Please select availability days");
+    } else {
+      // Validate time inputs for each selected day
+      for (const dayCheckbox of checkedDays) {
+        const day = dayCheckbox.value;
+        const startInput = form.querySelector(`input[name='start-${day}']`);
+        const endInput = form.querySelector(`input[name='end-${day}']`);
+        if (!startInput || !endInput || !startInput.value || !endInput.value) {
+          valid = false;
+          messages.push((currentLang === "ar" ? "يرجى تحديد أوقات البدء والانتهاء ليوم " : "Please specify start and end times for ") + day);
+          break;
+        }
+        if (startInput.value >= endInput.value) {
+          valid = false;
+          messages.push((currentLang === "ar" ? "وقت البدء يجب أن يكون قبل وقت الانتهاء ليوم " : "Start time must be before end time for ") + day);
+          break;
+        }
+      }
+    }
+
+    if (!valid) {
+      alert(messages.join("\n"));
+      return;
+    }
+
+    alert(currentLang === "ar" ? "تم التسجيل بنجاح!" : "Successfully signed up!");
+    form.reset();
+    timeInputsDiv.innerHTML = "";
+    fileNameDiv.textContent = "";
+  });
+</script>
+
+</body>
+</html>
