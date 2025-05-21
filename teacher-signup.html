@@ -237,8 +237,10 @@
     }
   });
 
-  // Form validation including selects not empty
+  // Form submit event
   document.getElementById("signup-form").addEventListener("submit", function(e) {
+    e.preventDefault();
+
     const form = e.target;
     const subject = form.subject.value;
     const grade = form.grade.value;
@@ -246,19 +248,25 @@
 
     if (!subject || !grade || !gender) {
       alert(currentLang === "ar" ? "يرجى اختيار المادة والصف واللقب." : "Please select Subject, Grade, and Title.");
-      e.preventDefault();
       return;
     }
 
     if (!form.checkValidity()) {
       alert(currentLang === "ar" ? "يرجى تعبئة الحقول بشكل صحيح." : "Please fill the fields correctly.");
-      e.preventDefault();
       return;
     }
+
+    if (currentLang === "ar") {
+      alert("تم التسجيل بنجاح! سيتم تحويلك إلى صفحة الاشتراك.");
+    } else {
+      alert("Signup successful! Redirecting to subscription page.");
+    }
+
+    window.location.href = "subscription.html";
   });
 
-  // Initialize page language
-  updateLanguage("en");
+  // Initialize language on page load
+  updateLanguage(currentLang);
 </script>
 
 </body>
