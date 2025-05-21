@@ -92,6 +92,12 @@
     .go-back-button:hover {
       background-color: #e4d6ae;
     }
+
+    .no-teachers-message {
+      font-size: 1.2em;
+      color: #666;
+      margin-top: 50px;
+    }
   </style>
 </head>
 <body>
@@ -148,21 +154,34 @@
 
       const allTeachers = JSON.parse(localStorage.getItem("teachers")) || [];
 
+      // Filter approved mathematics teachers (case-insensitive subject check)
       const mathTeachers = allTeachers.filter(teacher =>
-        teacher.subject === "Mathematics" && teacher.approved === true
+        teacher.approved === true &&
+        teacher.subject &&
+        teacher.subject.trim().toLowerCase() === "mathematics"
       );
 
-      mathTeachers.forEach((teacher, index) => {
+      if (mathTeachers.length === 0) {
+        const msg = document.createElement("div");
+        msg.className = "no-teachers-message";
+        msg.innerText = isArabic ? "لا يوجد معلمين متاحين" : "No teachers available";
+        teacherContainer.appendChild(msg);
+        return;
+      }
+
+      mathTeachers.forEach((teacher) => {
         const card = document.createElement("div");
         card.className = "teacher-card";
 
         const nameDiv = document.createElement("div");
         nameDiv.className = "teacher-name";
-        nameDiv.innerText = isArabic ? (teacher.gender === "female" ? "المعلمة " : "الأستاذ ") + teacher.name : (teacher.gender === "female" ? "Ms. " : "Mr. ") + teacher.name;
+        nameDiv.innerText = isArabic
+          ? (teacher.gender === "female" ? "المعلمة " : "الأستاذ ") + teacher.name
+          : (teacher.gender === "female" ? "Ms. " : "Mr. ") + teacher.name;
 
         const gradeDiv = document.createElement("div");
         gradeDiv.className = "teacher-info";
-        gradeDiv.innerText = isArabic ? `الصف: ${teacher.grade}` : `Grade: ${teacher.grade}`;
+        gradeDiv.innerText = isArabic ? `الصف: ${teacher.grade || '-'}` : `Grade: ${teacher.grade || '-'}`;
 
         const modeDiv = document.createElement("div");
         modeDiv.className = "teacher-info";
