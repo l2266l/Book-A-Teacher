@@ -114,9 +114,7 @@
           <th>Action</th>
         </tr>
       </thead>
-      <tbody>
-        <!-- Teacher rows inserted here -->
-      </tbody>
+      <tbody></tbody>
     </table>
     <p id="noTeachersMsg" style="margin-top: 20px; color: #666; display:none;">No teachers signed up yet.</p>
   </div>
@@ -230,7 +228,6 @@
       });
     }
 
-    // 🆕 Update approved teachers under subjects
     function updateApprovedTeachersBySubject() {
       const approvedBySubject = {};
       teachers.forEach(t => {
@@ -251,7 +248,7 @@
 
         teachers[idx].approved = !teachers[idx].approved;
         localStorage.setItem("teachers", JSON.stringify(teachers));
-        updateApprovedTeachersBySubject(); // 🆕 Sync approved list
+        updateApprovedTeachersBySubject();
         renderTeachers();
       }
     });
