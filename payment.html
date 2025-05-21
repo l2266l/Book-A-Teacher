@@ -152,11 +152,10 @@
           plan,
           receipt: receiptBase64,
           receiptName: receiptFile.name,
-          approved: false, // pending approval by admin
+          approved: false,
           timestamp: new Date().toISOString()
         };
 
-        // Optionally get teacher signup data from localStorage if it exists
         const teacherSignupData = JSON.parse(localStorage.getItem('teacherSignupData') || '{}');
 
         const fullData = {
@@ -166,9 +165,7 @@
 
         localStorage.setItem("paymentInfo", JSON.stringify(fullData));
 
-        alert(isArabic ? "تم إرسال الدفع! الرجاء تسجيل الدخول." : "Payment submitted! Please log in.");
-
-        // Redirect to login page
+        // Redirect immediately without alert
         window.location.href = "teacher-login.html";
       };
 
