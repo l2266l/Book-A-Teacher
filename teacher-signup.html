@@ -253,50 +253,44 @@
       const title = document.getElementById('title').value;
       const subject = document.getElementById('subject').value;
       const grade = document.getElementById('grade').value;
-      const certificateFile = document.getElementById('certificate').files[0];
+      const certificateInput = document.getElementById('certificate');
+      const certificateFile = certificateInput.files[0];
 
       if (!certificateFile) {
-        alert("Please upload your certificate.");
+        alert(currentLang === 'ar' ? 'يرجى تحميل الشهادة.' : 'Please upload the certificate.');
         return;
       }
 
       try {
-        // Upload certificate to Firebase Storage
-        const storageRef = storage.ref();
-        const fileRef = storageRef.child(`certificates/${email}_${Date.now()}_${certificateFile.name}`);
-        const snapshot = await fileRef.put(certificateFile);
-        const downloadURL = await snapshot.ref.getDownloadURL();
+        // Create user with email and password
+        const userCredential = await firebase.auth().createUserWithEmailAndPassword(email, password);
+        const uid = userCredential.user.uid;
 
-        // Save all form data + certificate URL to Firebase Realtime Database
-        const teacherData = {
+        // Upload certificate to Firebase Storage
+        const storageRef = storage.ref().child('certificates/' + uid + '_' + certificateFile.name);
+        const uploadTaskSnapshot = await storageRef.put(certificateFile);
+        const downloadURL = await uploadTaskSnapshot.ref.getDownloadURL();
+
+        // Save user data to Firebase Realtime Database
+        await database.ref('teachers/' + uid).set({
           name,
           email,
-          password,  // You might want to hash it in production
           whatsapp,
           bank,
           iban,
           title,
           subject,
           grade,
-          certificateURL: downloadURL,
-          createdAt: new Date().toISOString()
-        };
+          certificateURL: downloadURL
+        });
 
-        // Use email as key after replacing '.' to ',' or use push for unique key
-        const safeEmailKey = email.replace(/\./g, ',');
-        await database.ref('teachers/' + safeEmailKey).set(teacherData);
+        alert(currentLang === 'ar' ? 'تم التسجيل بنجاح!' : 'Sign up successful!');
 
-        alert("Sign up successful!");
-		
-		        // Redirect to subscription.html after signup success
-        window.location.href = "subscription.html";
-
-
-        form.reset();
+        // Redirect to subscription page after successful signup and upload
+        window.location.href = 'subscription.html';
 
       } catch (error) {
-        console.error("Error uploading certificate or saving data:", error);
-        alert("Error during sign up. Please try again.");
+        alert(error.message);
       }
     });
   </script>
