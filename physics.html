@@ -105,6 +105,7 @@
   <script>
     let isArabic = false;
 
+    // Helper: Add Arabic honorific based on gender
     function getTranslatedName(name, gender) {
       if (!isArabic) return name;
       if (gender === 'female') return "المعلمة " + name;
@@ -112,6 +113,7 @@
       return "الأستاذ/ة " + name;
     }
 
+    // Build each teacher card content based on language
     function translateTeacherCard(card, teacher) {
       const modeLabel = isArabic ? "طريقة التدريس" : "Mode";
       let modeValue = teacher.mode || (isArabic ? "غير محدد" : "Not specified");
@@ -127,6 +129,7 @@
       `;
     }
 
+    // Main rendering function: only shows approved physics teachers
     function renderTeachers() {
       const teacherList = document.getElementById("teacherList");
       teacherList.innerHTML = "";
@@ -135,12 +138,12 @@
 
       const physicsTeachers = storedTeachers.filter(t =>
         t.approved === true &&
-        t.subject &&
+        typeof t.subject === "string" &&
         t.subject.trim().toLowerCase() === "physics"
       );
 
       if (physicsTeachers.length === 0) {
-        teacherList.innerHTML = `<p style='text-align:center;'>${isArabic ? "لا يوجد معلمو فيزياء حالياً." : "No physics teachers available yet."}</p>`;
+        teacherList.innerHTML = `<p style='text-align:center;'>${isArabic ? "لا يوجد معلمون حالياً." : "No teachers available."}</p>`;
       } else {
         physicsTeachers.forEach(teacher => {
           const card = document.createElement("div");
@@ -151,6 +154,7 @@
       }
     }
 
+    // Language toggle logic
     function toggleLanguage() {
       isArabic = !isArabic;
       document.documentElement.lang = isArabic ? "ar" : "en";
@@ -163,6 +167,7 @@
       renderTeachers();
     }
 
+    // Start chat with selected teacher
     function startChat(teacher) {
       const chatData = {
         name: teacher.name,
@@ -181,10 +186,12 @@
       window.location.href = `chat.html?teacher=${encodeURIComponent(teacher.email)}`;
     }
 
+    // Go back button handler
     function goBack() {
       window.location.href = "all-subjects.html";
     }
 
+    // Initial render on page load
     renderTeachers();
   </script>
 
