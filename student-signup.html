@@ -83,12 +83,6 @@
     .lang-toggle-btn:hover {
       background-color: #e5d7b7;
     }
-
-    #googleSignInBtn {
-      margin-top: 1rem;
-      background-color: #ffffff;
-      border: 1px solid #ccc;
-    }
   </style>
 </head>
 <body>
@@ -105,9 +99,6 @@
       <input type="text" placeholder="Full Name" id="fullName" required />
       <button type="submit">Sign Up</button>
     </form>
-
-    <!-- Google Sign-Up -->
-    <button id="googleSignInBtn" onclick="handleGoogleSignup()">Sign up with Google</button>
 
     <!-- Already have an account? -->
     <div class="signup-link">
@@ -143,7 +134,6 @@
         document.getElementById('fullName').placeholder = 'الاسم الكامل';
         document.querySelector('form button').innerText = 'إنشاء حساب';
         document.querySelector('.signup-link p').innerHTML = 'هل لديك حساب؟ <a href="student-login.html">تسجيل الدخول</a>';
-        document.getElementById('googleSignInBtn').innerText = 'التسجيل باستخدام جوجل';
         currentLang = 'ar';
       } else {
         document.getElementById('title').innerText = 'Student Sign Up';
@@ -152,7 +142,6 @@
         document.getElementById('fullName').placeholder = 'Full Name';
         document.querySelector('form button').innerText = 'Sign Up';
         document.querySelector('.signup-link p').innerHTML = 'Already have an account? <a href="student-login.html">Log in</a>';
-        document.getElementById('googleSignInBtn').innerText = 'Sign up with Google';
         currentLang = 'en';
       }
     }
@@ -169,16 +158,6 @@
         window.location.href = "student-login.html";
       } catch (error) {
         alert("Error signing up: " + error.message);
-      }
-    }
-
-    async function handleGoogleSignup() {
-      const provider = new firebase.auth.GoogleAuthProvider();
-      try {
-        await auth.signInWithPopup(provider);
-        window.location.href = "student-login.html";
-      } catch (error) {
-        alert("Google Sign-up error: " + error.message);
       }
     }
   </script>
