@@ -56,16 +56,17 @@
 
     .chat-button {
       background-color: #FAEDCB;
-      color: white;
+      color: #333;
       border: none;
       padding: 10px 15px;
       border-radius: 6px;
       cursor: pointer;
       margin-top: 10px;
+      font-weight: bold;
     }
 
     .chat-button:hover {
-      background-color: #f0d39f;
+      background-color: #e1d08e;
     }
 
     .go-back-button {
@@ -100,21 +101,24 @@
   <script>
     let isArabic = false;
     const teacherList = document.getElementById("teacherList");
-    const storedTeachers = JSON.parse(localStorage.getItem("teachers")) || [];
+
+    // Use the approved teachers list so only approved appear here
+    function getApprovedTeachersForSubject(subject) {
+      const approvedTeachers = JSON.parse(localStorage.getItem("approvedTeachers")) || [];
+      return approvedTeachers.filter(t => t.subject?.toLowerCase().trim() === subject.toLowerCase());
+    }
 
     function displayTeachers() {
       teacherList.innerHTML = "";
-      const islamicTeachers = storedTeachers.filter(t =>
-        t.subject?.toLowerCase().trim() === "islamic studies"
-      );
+      const filteredTeachers = getApprovedTeachersForSubject("Islamic Studies");
 
-      if (islamicTeachers.length === 0) {
-        teacherList.innerHTML = `<p style='text-align:center;'>${isArabic ? "لا يوجد معلمين للتربية الإسلامية بعد." : "No Islamic Studies teachers available yet."}</p>`;
+      if (filteredTeachers.length === 0) {
+        teacherList.innerHTML = `<p style='text-align:center;'>${isArabic ? "لا يوجد معلمين متاحين." : "No teachers available."}</p>`;
       } else {
-        islamicTeachers.forEach(teacher => {
+        filteredTeachers.forEach(teacher => {
           const card = document.createElement("div");
           card.className = "teacher-card";
-          card.innerHTML = ` 
+          card.innerHTML = `
             <h2>${isArabic ? "معلم" : "Teacher"}: ${teacher.name}</h2>
             <p><strong>${isArabic ? "الصف:" : "Grade:"}</strong> ${teacher.grade}</p>
             <p><strong>${isArabic ? "البريد الإلكتروني:" : "Email:"}</strong> ${teacher.email}</p>
@@ -130,14 +134,10 @@
 
     function startChat(name) {
       let chats = JSON.parse(localStorage.getItem("chats")) || [];
-
-      // Prevent duplicate entries
       if (!chats.includes(name)) {
         chats.push(name);
         localStorage.setItem("chats", JSON.stringify(chats));
       }
-
-      // Redirect to chat page
       window.location.href = `chat.html?teacher=${encodeURIComponent(name)}`;
     }
 
@@ -155,7 +155,6 @@
       window.location.href = "all-subjects.html";
     }
 
-    // Initialize page
     displayTeachers();
   </script>
 </body>
