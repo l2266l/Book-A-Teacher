@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Admin Dashboard</title>
   <style>
     body {
@@ -18,7 +18,7 @@
       padding: 20px;
       border-radius: 10px;
       box-shadow: 0 0 10px rgba(0,0,0,0.2);
-      max-width: 1000px;
+      max-width: 900px;
       margin: auto;
     }
 
@@ -28,7 +28,7 @@
 
     .counter {
       margin-top: 20px;
-      font-size: 1.1rem;
+      font-size: 1.2rem;
       color: #333;
     }
 
@@ -40,145 +40,237 @@
 
     th, td {
       padding: 10px;
-      border: 1px solid #ccc;
+      border: 1px solid #ddd;
+      text-align: center;
     }
 
     th {
-      background-color: #f0f0f0;
-    }
-
-    .btn {
-      padding: 5px 10px;
       background-color: #0077b6;
       color: white;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
+    }
+
+    a {
+      color: #0077b6;
       text-decoration: none;
     }
 
-    .btn:hover {
-      background-color: #005f8a;
+    a:hover {
+      text-decoration: underline;
     }
 
-    #langBtn {
-      position: absolute;
-      top: 10px;
-      right: 10px;
+    .status-badge {
       padding: 5px 10px;
-      background-color: #faedcb;
+      border-radius: 5px;
+      font-weight: bold;
+      color: white;
+    }
+
+    .approved {
+      background-color: #2a9d8f;
+    }
+
+    .pending {
+      background-color: #e76f51;
+    }
+
+    button.approve-btn {
+      padding: 6px 12px;
       border: none;
       border-radius: 5px;
       cursor: pointer;
+      font-weight: bold;
+      color: white;
+    }
+
+    button.approve-btn.approve {
+      background-color: #2a9d8f;
+    }
+
+    button.approve-btn.undo {
+      background-color: #e76f51;
     }
   </style>
 </head>
 <body>
 
-  <button id="langBtn">العربية</button>
-
   <div class="admin-content" id="adminContent">
-    <h1 data-en="Admin Dashboard" data-ar="لوحة تحكم المشرف">Admin Dashboard</h1>
-    <p data-en="Welcome, Admin. You now have access to restricted data and controls."
-       data-ar="مرحبًا، أيها المشرف. لديك الآن حق الوصول إلى البيانات والضوابط الخاصة.">
-       Welcome, Admin. You now have access to restricted data and controls.
-    </p>
-
+    <h1>Admin Dashboard</h1>
+    <p>Welcome, Admin. You now have access to restricted data and controls.</p>
+    
     <div class="counter">
-      <p><span data-en="Parent/Student Accounts" data-ar="حسابات أولياء الأمور/الطلاب">Parent/Student Accounts</span>: <span id="parentCount">0</span></p>
-      <p><span data-en="Teacher Accounts" data-ar="حسابات المعلمين">Teacher Accounts</span>: <span id="teacherCount">0</span></p>
-      <p><span data-en="Website Visits" data-ar="زيارات الموقع">Website Visits</span>: <span id="visitCount">0</span></p>
+      <p>Parent/Student Accounts: <span id="parentCount">0</span></p>
+      <p>Teacher Accounts: <span id="teacherCount">0</span></p>
+      <p>Website Visits: <span id="visitCount">0</span></p>
     </div>
 
-    <h2 data-en="Teachers Awaiting Activation" data-ar="المعلمون في انتظار التفعيل">Teachers Awaiting Activation</h2>
-    <table>
+    <table id="teachersTable" aria-label="Teachers List">
       <thead>
         <tr>
-          <th data-en="Teacher Name" data-ar="اسم المعلم">Teacher Name</th>
-          <th data-en="Email" data-ar="البريد الإلكتروني">Email</th>
-          <th data-en="Receipt" data-ar="الإيصال">Receipt</th>
-          <th data-en="Certificate" data-ar="الشهادة الجامعية">Certificate</th>
-          <th data-en="Action" data-ar="الإجراء">Action</th>
+          <th>Name</th>
+          <th>Email</th>
+          <th>University Certificate</th>
+          <th>Payment Receipt</th>
+          <th>Status</th>
+          <th>Action</th>
         </tr>
       </thead>
-      <tbody id="teacherList"></tbody>
+      <tbody>
+        <!-- Teacher rows inserted here -->
+      </tbody>
     </table>
+    <p id="noTeachersMsg" style="margin-top: 20px; color: #666; display:none;">No teachers signed up yet.</p>
   </div>
 
   <script>
-    // Admin Access
-    const adminPassword = "BookATeacher.ae";
+    const adminPassword = "SJ";
+
+    // Prompt for admin password on page load
     const userInput = prompt("Enter admin password:");
     if (userInput !== adminPassword) {
       alert("Access denied.");
-      window.location.href = "index.html";
+      window.location.href = "index.html"; // Redirect unauthorized users
     } else {
       document.getElementById("adminContent").style.display = "block";
     }
 
-    // Translation Support
-    let currentLang = "en";
-    document.getElementById("langBtn").addEventListener("click", () => {
-      currentLang = currentLang === "en" ? "ar" : "en";
-      document.querySelectorAll("[data-en]").forEach(el => {
-        el.innerText = el.getAttribute(`data-${currentLang}`);
+    // Count website visits, increment on each admin page visit
+    let visitCount = localStorage.getItem("visitCount") || 0;
+    visitCount = Number(visitCount) + 1;
+    localStorage.setItem("visitCount", visitCount);
+    document.getElementById("visitCount").innerText = visitCount;
+
+    // Load parent/student accounts from localStorage
+    let parentAccounts = [];
+    try {
+      const storedParents = localStorage.getItem("parents");
+      if (storedParents) parentAccounts = JSON.parse(storedParents);
+    } catch (e) {
+      console.error("Error parsing parents from localStorage", e);
+    }
+
+    // Load teacher accounts from localStorage or add dummy if none exist
+    let teachers = [];
+    try {
+      const storedTeachers = localStorage.getItem("teachers");
+      if (storedTeachers) {
+        teachers = JSON.parse(storedTeachers);
+      } else {
+        // Add a dummy teacher for first-time use
+        teachers = [
+          {
+            name: "Zahra Al Ali",
+            email: "zahra@univ.com",
+            certificateUrl: "https://example.com/cert.jpg",
+            receiptUrl: "https://example.com/receipt.jpg",
+            approved: false
+          }
+        ];
+        localStorage.setItem("teachers", JSON.stringify(teachers));
+      }
+    } catch (e) {
+      console.error("Error parsing teachers from localStorage", e);
+    }
+
+    // Update account counters in the dashboard
+    document.getElementById("parentCount").innerText = parentAccounts.length;
+    document.getElementById("teacherCount").innerText = teachers.length;
+
+    const teachersTableBody = document.querySelector("#teachersTable tbody");
+    const noTeachersMsg = document.getElementById("noTeachersMsg");
+
+    // Helper to escape HTML special characters in strings to prevent XSS
+    function escapeHTML(str) {
+      if (!str) return "";
+      return str.replace(/[&<>"']/g, function(m) {
+        return ({
+          '&': '&amp;',
+          '<': '&lt;',
+          '>': '&gt;',
+          '"': '&quot;',
+          "'": '&#39;'
+        })[m];
       });
-      document.getElementById("langBtn").innerText = currentLang === "en" ? "العربية" : "English";
+    }
+
+    // Render teachers data into table rows
+    function renderTeachers() {
+      teachersTableBody.innerHTML = "";
+      if (teachers.length === 0) {
+        noTeachersMsg.style.display = "block";
+        return;
+      } else {
+        noTeachersMsg.style.display = "none";
+      }
+
+      teachers.forEach((teacher, index) => {
+        const name = escapeHTML(teacher.name || "");
+        const email = escapeHTML(teacher.email || "");
+        const certUrl = teacher.certificateUrl || "";
+        const receiptUrl = teacher.receiptUrl || "";
+        const approved = !!teacher.approved;
+
+        // Encode URLs safely for the links
+        const certLink = certUrl
+          ? `<a href="${encodeURI(certUrl)}" target="_blank" rel="noopener noreferrer">View Certificate</a>`
+          : "N/A";
+
+        const receiptLink = receiptUrl
+          ? `<a href="${encodeURI(receiptUrl)}" target="_blank" rel="noopener noreferrer">View Receipt</a>`
+          : "N/A";
+
+        const statusBadge = approved
+          ? `<span class="status-badge approved">Approved</span>`
+          : `<span class="status-badge pending">Pending</span>`;
+
+        const actionBtnText = approved ? "Undo" : "Approve";
+        const actionBtnClass = approved ? "undo" : "approve";
+
+        teachersTableBody.insertAdjacentHTML("beforeend", `
+          <tr>
+            <td>${name}</td>
+            <td>${email}</td>
+            <td>${certLink}</td>
+            <td>${receiptLink}</td>
+            <td>${statusBadge}</td>
+            <td><button class="approve-btn ${actionBtnClass}" data-index="${index}">${actionBtnText}</button></td>
+          </tr>
+        `);
+      });
+    }
+
+    // Handle approve/undo button clicks using event delegation
+    teachersTableBody.addEventListener("click", e => {
+      if (e.target.classList.contains("approve-btn")) {
+        const idx = parseInt(e.target.getAttribute("data-index"), 10);
+        if (isNaN(idx) || idx < 0 || idx >= teachers.length) return;
+
+        teachers[idx].approved = !teachers[idx].approved;
+        localStorage.setItem("teachers", JSON.stringify(teachers));
+        renderTeachers();
+      }
     });
 
-    // Load Stats from localStorage
-    document.getElementById("parentCount").innerText = localStorage.getItem("parentCount") || 0;
-    document.getElementById("teacherCount").innerText = localStorage.getItem("teacherCount") || 0;
-    document.getElementById("visitCount").innerText = localStorage.getItem("visitCount") || 0;
-
-    // Load Teachers from localStorage
-    const teachers = JSON.parse(localStorage.getItem("teachers") || "[]");
-    const teacherList = document.getElementById("teacherList");
-
-    function renderTeachers() {
-      teacherList.innerHTML = "";
-      teachers.forEach((teacher, index) => {
-        if (!teacher.approved) {
-          const receiptCell = teacher.receiptUrl
-            ? `<a class="btn" href="${teacher.receiptUrl}" target="_blank" data-en="View" data-ar="عرض">View</a>`
-            : `<span data-en="No Receipt" data-ar="لا يوجد إيصال">No Receipt</span>`;
-
-          const certificateCell = teacher.certificateUrl
-            ? `<a class="btn" href="${teacher.certificateUrl}" target="_blank" data-en="View" data-ar="عرض">View</a>`
-            : `<span data-en="No Certificate" data-ar="لا يوجد شهادة">No Certificate</span>`;
-
-          const row = document.createElement("tr");
-          row.innerHTML = 
-            `<td>${teacher.name}</td>
-            <td>${teacher.email}</td>
-            <td>${receiptCell}</td>
-            <td>${certificateCell}</td>
-            <td><button class="btn" onclick="approveTeacher(${index})" data-en="Approve" data-ar="تفعيل">Approve</button></td>`;
-          teacherList.appendChild(row);
-        }
-      });
-      // Update language on re-render
-      if (currentLang === "ar") {
-        document.querySelectorAll("[data-en]").forEach(el => {
-          el.innerText = el.getAttribute(`data-${currentLang}`);
-        });
-      }
-    }
-
-    function approveTeacher(index) {
-      teachers[index].approved = true;
-      localStorage.setItem("teachers", JSON.stringify(teachers));
-
-      // Update approved count
-      const approvedCount = teachers.filter(t => t.approved).length;
-      localStorage.setItem("teacherCount", approvedCount);
-
-      alert("Teacher approved!");
-      renderTeachers();
-      document.getElementById("teacherCount").innerText = approvedCount;
-    }
-
     renderTeachers();
+
+    // Optional: Example function to add a new teacher with cert + receipt to localStorage
+    // This is just for demo/testing; you would normally add teachers on signup forms elsewhere.
+    /*
+    function addTeacher(name, email, certUrl, receiptUrl) {
+      teachers.push({
+        name,
+        email,
+        certificateUrl: certUrl,
+        receiptUrl: receiptUrl,
+        approved: false
+      });
+      localStorage.setItem("teachers", JSON.stringify(teachers));
+      document.getElementById("teacherCount").innerText = teachers.length;
+      renderTeachers();
+    }
+    // Example usage:
+    // addTeacher("John Doe", "john@example.com", "https://example.com/john_cert.jpg", "https://example.com/john_receipt.jpg");
+    */
+
   </script>
 </body>
 </html>
