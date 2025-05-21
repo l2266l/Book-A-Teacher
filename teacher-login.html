@@ -30,6 +30,7 @@
       margin: 10px 0;
       border-radius: 6px;
       border: 1px solid #ccc;
+      box-sizing: border-box;
     }
 
     .language-toggle {
@@ -37,7 +38,7 @@
       top: 20px;
       right: 20px;
       padding: 8px 14px;
-      background-color: FAEDCB;
+      background-color: #FAEDCB;
       border: none;
       border-radius: 8px;
       cursor: pointer;
@@ -59,6 +60,8 @@
       margin-top: 10px;
       border-radius: 6px;
       cursor: pointer;
+      font-weight: bold;
+      font-size: 16px;
     }
 
     #submit-button:hover {
@@ -84,6 +87,7 @@
       color: #0077cc;
       cursor: pointer;
       transition: background-color 0.3s;
+      font-weight: bold;
     }
 
     .homepage-button:hover {
@@ -99,7 +103,7 @@
     <h2 id="login-title">Teacher Login</h2>
 
     <!-- Manual Login -->
-    <form onsubmit="handleManualLogin(event)">
+    <form id="login-form">
       <input type="text" placeholder="Full Name" id="fullname-input" required />
       <input type="email" placeholder="Email" id="email-input" required />
       <input type="password" placeholder="Password" id="password-input" required />
@@ -114,23 +118,25 @@
   </div>
 
   <script>
-    function handleManualLogin(event) {
+    // Login form submit handler
+    document.getElementById('login-form').addEventListener('submit', function(event) {
       event.preventDefault();
-      const name = document.getElementById("fullname-input").value;
-      const email = document.getElementById("email-input").value;
+      const name = document.getElementById("fullname-input").value.trim();
+      const email = document.getElementById("email-input").value.trim();
 
-      // Save user data in localStorage (simulate login)
+      // Store login info in localStorage
       localStorage.setItem("isLoggedIn", "true");
       localStorage.setItem("userRole", "teacher");
       localStorage.setItem("userName", name);
       localStorage.setItem("userEmail", email);
 
-      alert("Logged in manually as: " + name);
+      alert((isArabic ? "تم تسجيل الدخول بنجاح باسم: " : "Logged in successfully as: ") + name);
 
-      // Redirect to index.html
+      // Redirect ONLY to index.html — no other pages
       window.location.href = "index.html";
-    }
+    });
 
+    // Language toggle state
     let isArabic = false;
 
     function toggleLanguage() {
