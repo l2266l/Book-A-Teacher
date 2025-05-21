@@ -185,39 +185,27 @@
   function updateLanguage(lang) {
     currentLang = lang;
 
-    // Update html lang attribute and direction
     htmlEl.lang = lang;
-    if (lang === "ar") {
-      htmlEl.dir = "rtl";
-      langToggle.textContent = "English";
-    } else {
-      htmlEl.dir = "ltr";
-      langToggle.textContent = "عربي";
-    }
+    htmlEl.dir = lang === "ar" ? "rtl" : "ltr";
+    langToggle.textContent = lang === "ar" ? "English" : "عربي";
 
-    // Update static texts with data attributes
     document.querySelectorAll("[data-en]").forEach(el => {
       el.textContent = lang === "ar" ? el.getAttribute("data-ar") : el.getAttribute("data-en");
     });
 
-    // Update placeholders for inputs
     document.querySelectorAll("input[data-placeholder-en]").forEach(input => {
       input.placeholder = lang === "ar" ? input.getAttribute("data-placeholder-ar") : input.getAttribute("data-placeholder-en");
     });
 
-    // Update select options text dynamically
-    const subjectSelect = document.getElementById("subject-select");
-    [...subjectSelect.options].forEach((option, idx) => {
+    [...document.getElementById("subject-select").options].forEach((option, idx) => {
       option.textContent = subjects[lang][idx];
     });
 
-    const gradeSelect = document.getElementById("grade-select");
-    [...gradeSelect.options].forEach((option, idx) => {
+    [...document.getElementById("grade-select").options].forEach((option, idx) => {
       option.textContent = grades[lang][idx];
     });
 
-    const genderSelect = document.getElementById("gender-select");
-    [...genderSelect.options].forEach((option, idx) => {
+    [...document.getElementById("gender-select").options].forEach((option, idx) => {
       option.textContent = genders[lang][idx];
     });
   }
@@ -226,47 +214,12 @@
     updateLanguage(currentLang === "en" ? "ar" : "en");
   });
 
-  // File input display file name
   const certInput = document.getElementById("certificate-input");
   const fileNameDisplay = document.getElementById("file-name");
-  certInput.addEventListener("change", () => {
-    if (certInput.files.length > 0) {
-      fileNameDisplay.textContent = certInput.files[0].name;
-    } else {
-      fileNameDisplay.textContent = "";
-    }
+  certInput.addEventListener("change", function () {
+    const fileName = this.files.length ? this.files[0].name : "";
+    fileNameDisplay.textContent = fileName;
   });
-
-  // Form submit event
-  document.getElementById("signup-form").addEventListener("submit", function(e) {
-    e.preventDefault();
-
-    const form = e.target;
-    const subject = form.subject.value;
-    const grade = form.grade.value;
-    const gender = form.gender.value;
-
-    if (!subject || !grade || !gender) {
-      alert(currentLang === "ar" ? "يرجى اختيار المادة والصف واللقب." : "Please select Subject, Grade, and Title.");
-      return;
-    }
-
-    if (!form.checkValidity()) {
-      alert(currentLang === "ar" ? "يرجى تعبئة الحقول بشكل صحيح." : "Please fill the fields correctly.");
-      return;
-    }
-
-    if (currentLang === "ar") {
-      alert("تم التسجيل بنجاح! سيتم تحويلك إلى صفحة الاشتراك.");
-    } else {
-      alert("Signup successful! Redirecting to subscription page.");
-    }
-
-    window.location.href = "subscription.html";
-  });
-
-  // Initialize language on page load
-  updateLanguage(currentLang);
 </script>
 
 </body>
