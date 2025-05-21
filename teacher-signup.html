@@ -95,7 +95,6 @@
 
       <label id="title-label">Title</label>
       <select id="title">
-        <!-- Initial mixed labels, untranslated until toggle -->
         <option value="Ms">Ms</option>
         <option value="Mr">Mr</option>
       </select>
@@ -134,9 +133,8 @@
       <input type="file" id="certificate" accept="application/pdf,image/*" required />
 
       <div style="text-align: center;">
-       <button type="submit" id="submit-button">Sign Up</button>
+        <button type="submit" id="submit-button">Sign Up</button>
       </div>
-
     </form>
   </div>
 
@@ -157,7 +155,7 @@
         "submit-button": "تسجيل",
         "language-toggle": "English",
         "page-title": "تسجيل المعلمين",
-        "title-options": ["المعلمة", "الاستاذ"]
+        "title-options": ["المعلمة", "الأستاذ"]
       },
       en: {
         "form-title": "Teacher Sign Up",
@@ -174,7 +172,7 @@
         "submit-button": "Sign Up",
         "language-toggle": "العربية",
         "page-title": "Teacher Sign Up",
-        "title-options": ["معلمة", "استاذ"]
+        "title-options": ["Ms", "Mr"]
       },
       subjects: {
         ar: ["الرياضيات", "الفيزياء", "الأحياء", "الكيمياء", "العلوم", "اللغة العربية", "اللغة الإنجليزية", "اللغة الفرنسية", "اللغة الصينية", "الدراسات الإسلامية"],
@@ -192,39 +190,34 @@
       currentLang = currentLang === 'en' ? 'ar' : 'en';
       document.body.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
 
-      // Translate all text elements by IDs
       for (const key in translations[currentLang]) {
-        if (key === 'title-options') continue; // skip title options here
+        if (key === 'title-options') continue;
         const el = document.getElementById(key);
         if (el) el.textContent = translations[currentLang][key];
       }
 
       document.title = translations[currentLang]['page-title'];
 
-      // Translate subject options
       const subjectSelect = document.getElementById('subject');
       subjectSelect.querySelectorAll('option').forEach((opt, idx) => {
         opt.textContent = translations.subjects[currentLang][idx];
       });
 
-      // Translate grade options
       const gradeSelect = document.getElementById('grade');
       gradeSelect.querySelectorAll('option').forEach((opt, idx) => {
         opt.textContent = translations.grades[currentLang][idx];
       });
 
-      // Translate title (gender) options ONLY when toggled
       const titleSelect = document.getElementById('title');
       const titleOptions = translations[currentLang]['title-options'];
       titleSelect.querySelectorAll('option').forEach((opt, idx) => {
         opt.textContent = titleOptions[idx];
       });
 
-      // Update language toggle button text
       document.getElementById('language-toggle').textContent = translations[currentLang]['language-toggle'];
     });
 
-    // Firebase config initialization placeholder (add your config here)
+    // Firebase config
     const firebaseConfig = {
       apiKey: "YOUR_API_KEY",
       authDomain: "YOUR_AUTH_DOMAIN",
@@ -235,12 +228,10 @@
       appId: "YOUR_APP_ID"
     };
     firebase.initializeApp(firebaseConfig);
-
     const storage = firebase.storage();
     const database = firebase.database();
 
     const form = document.getElementById('signup-form');
-
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
 
@@ -253,26 +244,22 @@
       const title = document.getElementById('title').value;
       const subject = document.getElementById('subject').value;
       const grade = document.getElementById('grade').value;
-      const certificateInput = document.getElementById('certificate');
-      const certificateFile = certificateInput.files[0];
+      const certificateFile = document.getElementById('certificate').files[0];
 
       if (!certificateFile) {
-        alert(currentLang === 'ar' ? 'يرجى تحميل الشهادة.' : 'Please upload the certificate.');
+        alert("Please upload your certificate.");
         return;
       }
 
       try {
-        // Create user with email and password
         const userCredential = await firebase.auth().createUserWithEmailAndPassword(email, password);
-        const uid = userCredential.user.uid;
+        const userId = userCredential.user.uid;
 
-        // Upload certificate to Firebase Storage
-        const storageRef = storage.ref().child('certificates/' + uid + '_' + certificateFile.name);
-        const uploadTaskSnapshot = await storageRef.put(certificateFile);
-        const downloadURL = await uploadTaskSnapshot.ref.getDownloadURL();
+        const storageRef = storage.ref(`certificates/${userId}_${certificateFile.name}`);
+        await storageRef.put(certificateFile);
+        const certificateURL = await storageRef.getDownloadURL();
 
-        // Save user data to Firebase Realtime Database
-        await database.ref('teachers/' + uid).set({
+        await database.ref('teachers/' + userId).set({
           name,
           email,
           whatsapp,
@@ -281,16 +268,14 @@
           title,
           subject,
           grade,
-          certificateURL: downloadURL
+          certificateURL
         });
 
-        alert(currentLang === 'ar' ? 'تم التسجيل بنجاح!' : 'Sign up successful!');
-
-        // Redirect to subscription page after successful signup and upload
-        window.location.href = 'subscription.html';
-
+        alert("Sign up successful!");
+        form.reset();
       } catch (error) {
-        alert(error.message);
+        console.error("Error during sign up:", error);
+        alert("Error: " + error.message);
       }
     });
   </script>
