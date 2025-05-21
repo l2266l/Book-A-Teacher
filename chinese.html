@@ -53,6 +53,7 @@
 
     .teacher-card p {
       margin: 5px 0;
+      color: #333;
     }
 
     .chat-button {
@@ -88,10 +89,16 @@
     .go-back-button:hover {
       background-color: #d0ebff;
     }
+
+    .no-teachers {
+      text-align: center;
+      font-size: 1em;
+      color: #555;
+      font-family: Arial, sans-serif;
+    }
   </style>
 </head>
 <body>
-  <!-- Go Back Button -->
   <button class="go-back-button" onclick="goBack()">
     <span id="goBackBtnText">Go Back</span>
   </button>
@@ -105,27 +112,35 @@
     let isArabic = false;
     const teacherList = document.getElementById("teacherList");
 
-    // Load approved teachers from localStorage (should be set by your admin approval process)
-    // Example format:
-    // [
-    //   {name: "Ms. Li", grade: "9", email: "li@example.com", subject: "Chinese"},
-    //   {name: "Mr. Zhang", grade: "11", email: "zhang@example.com", subject: "Chinese"},
-    //   {name: "Ms. Fatima", grade: "10", email: "fatima@example.com", subject: "Mathematics"}
-    // ]
-    const storedTeachers = JSON.parse(localStorage.getItem("teachers")) || [];
+    // Fetch all teachers and filter only those who chose Chinese and got approved
+    function getApprovedTeachersForSubject(subject) {
+      // All teachers signed up, stored in localStorage "allTeachers"
+      const allTeachers = JSON.parse(localStorage.getItem("allTeachers")) || [];
+      // Approved teachers list in localStorage "approvedTeachers" (contains only names/emails of approved teachers)
+      const approvedTeachers = JSON.parse(localStorage.getItem("approvedTeachers")) || [];
 
-    // Display only teachers for the "Chinese" subject (case-insensitive)
+      // Filter teachers who selected this subject (case-insensitive trim) and who are approved
+      return allTeachers.filter(teacher => {
+        if (!teacher.subject) return false;
+        const subjectMatch = teacher.subject.toLowerCase().trim() === subject.toLowerCase();
+        const isApproved = approvedTeachers.some(appr => {
+          // approval matched by unique email or name if email missing
+          return (appr.email && teacher.email && appr.email === teacher.email) ||
+                 (appr.name && teacher.name && appr.name === teacher.name);
+        });
+        return subjectMatch && isApproved;
+      });
+    }
+
     function displayTeachers() {
       teacherList.innerHTML = "";
-      // Change "chinese" here to "mathematics" or any other subject you want to filter
-      const subjectFilter = "chinese";
-
-      const filteredTeachers = storedTeachers.filter(t =>
-        t.subject.toLowerCase().trim() === subjectFilter
-      );
+      const filteredTeachers = getApprovedTeachersForSubject("Chinese");
 
       if (filteredTeachers.length === 0) {
-        teacherList.innerHTML = `<p style='text-align:center;'>${isArabic ? "لا يوجد معلمين للغة الصينية بعد." : "No Chinese teachers available yet."}</p>`;
+        const noMsg = document.createElement("p");
+        noMsg.className = "no-teachers";
+        noMsg.innerText = isArabic ? "لا يوجد معلمين." : "No teachers available.";
+        teacherList.appendChild(noMsg);
       } else {
         filteredTeachers.forEach(teacher => {
           const card = document.createElement("div");
@@ -144,17 +159,19 @@
       }
     }
 
-    // Add the teacher to the chats list in localStorage, then redirect to chat page
     function startChat(name) {
-      let currentChats = JSON.parse(localStorage.getItem("chats")) || [];
-      if (!currentChats.includes(name)) {
-        currentChats.push(name);
-        localStorage.setItem("chats", JSON.stringify(currentChats));
-      }
+      const chat = {
+        teacher: name,
+        time: new Date().toLocaleString()
+      };
+
+      const chats = JSON.parse(localStorage.getItem("chats")) || [];
+      chats.push(chat);
+      localStorage.setItem("chats", JSON.stringify(chats));
+
       window.location.href = `chat.html?teacher=${encodeURIComponent(name)}`;
     }
 
-    // Language toggle between English and Arabic
     function toggleLanguage() {
       isArabic = !isArabic;
       document.documentElement.lang = isArabic ? "ar" : "en";
@@ -167,12 +184,11 @@
       displayTeachers();
     }
 
-    // Go back button behavior
     function goBack() {
       window.location.href = "all-subjects.html";
     }
 
-    // Initial display on page load
+    // Initial render
     displayTeachers();
   </script>
 </body>
