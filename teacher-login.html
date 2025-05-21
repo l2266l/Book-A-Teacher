@@ -4,7 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Teacher Login</title>
-  <script src="https://accounts.google.com/gsi/client" async defer></script>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -33,17 +32,12 @@
       border: 1px solid #ccc;
     }
 
-    .or {
-      margin: 15px 0;
-      font-weight: bold;
-    }
-
     .language-toggle {
       position: absolute;
       top: 20px;
       right: 20px;
       padding: 8px 14px;
-      background-color: white;
+      background-color: FAEDCB;
       border: none;
       border-radius: 8px;
       cursor: pointer;
@@ -104,18 +98,6 @@
   <div class="login-container">
     <h2 id="login-title">Teacher Login</h2>
 
-    <!-- Google Login -->
-    <div id="g_id_onload"
-         data-client_id="517961306953-uc2pmelkvuq0ji44moebff6786hsci21.apps.googleusercontent.com"
-         data-context="signin"
-         data-ux_mode="popup"
-         data-callback="handleCredentialResponse"
-         data-auto_prompt="false">
-    </div>
-    <div class="g_id_signin" data-type="standard"></div>
-
-    <div class="or" id="or-text">or</div>
-
     <!-- Manual Login -->
     <form onsubmit="handleManualLogin(event)">
       <input type="text" placeholder="Full Name" id="fullname-input" required />
@@ -132,28 +114,22 @@
   </div>
 
   <script>
-    function handleCredentialResponse(response) {
-  console.log("Google token:", response.credential);
+    function handleManualLogin(event) {
+      event.preventDefault();
+      const name = document.getElementById("fullname-input").value;
+      const email = document.getElementById("email-input").value;
 
-  // Save login state and role
-  localStorage.setItem('isLoggedIn', 'true');
-  localStorage.setItem('userRole', 'teacher');
+      // Save user data in localStorage (simulate login)
+      localStorage.setItem("isLoggedIn", "true");
+      localStorage.setItem("userRole", "teacher");
+      localStorage.setItem("userName", name);
+      localStorage.setItem("userEmail", email);
 
-  // Redirect once after setting localStorage
-  window.location.href = 'subscription.html'; // fixed here
-}
+      alert("Logged in manually as: " + name);
 
-function handleManualLogin(event) {
-  event.preventDefault();
-  const name = document.getElementById("fullname-input").value;
-
-  alert("Logged in manually as: " + name);
-
-  localStorage.setItem("isLoggedIn", "true");
-  localStorage.setItem("userRole", "teacher");
-
-  window.location.href = "subscription.html"; // fixed here
-}
+      // Redirect to index.html
+      window.location.href = "index.html";
+    }
 
     let isArabic = false;
 
@@ -163,7 +139,6 @@ function handleManualLogin(event) {
       document.documentElement.dir = isArabic ? "rtl" : "ltr";
 
       document.getElementById("login-title").innerText = isArabic ? "تسجيل دخول المعلم" : "Teacher Login";
-      document.getElementById("or-text").innerText = isArabic ? "أو" : "or";
       document.getElementById("fullname-input").placeholder = isArabic ? "الاسم الكامل" : "Full Name";
       document.getElementById("email-input").placeholder = isArabic ? "البريد الإلكتروني" : "Email";
       document.getElementById("password-input").placeholder = isArabic ? "كلمة المرور" : "Password";
