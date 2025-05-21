@@ -5,51 +5,67 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Book a Lesson</title>
   <style>
+    :root {
+      --primary-color: #FAEDCB;
+      --background: #C9E4DE;
+      --text-color: #333;
+      --accent: #007B5E;
+      --accent-gradient: linear-gradient(135deg, #00b894, #55efc4);
+      --shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    }
+
     body {
-      background-color: #C9E4DE;
+      background-color: var(--background);
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       margin: 0;
       padding: 0;
       direction: ltr;
+      color: var(--text-color);
+    }
+
+    .lang-switch {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+    }
+
+    .lang-switch button {
+      background-color: #faedcb;
+      color: #333;
+      border: none;
+      border-radius: 50%;
+      width: 38px;
+      height: 38px;
+      font-size: 18px;
+      cursor: pointer;
+      box-shadow: var(--shadow);
     }
 
     .container {
       max-width: 600px;
-      margin: 40px auto;
-      background: white;
-      border-radius: 20px;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-      overflow: hidden;
-      padding: 20px;
+      margin: 60px auto;
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+      padding: 24px 28px;
+      position: relative;
     }
 
     .header {
-      background-color: #FAEDCB;
-      padding: 18px;
-      font-size: 22px;
-      font-weight: bold;
+      background-color: var(--primary-color);
+      padding: 20px;
+      font-size: 24px;
+      font-weight: 600;
       text-align: center;
-      border-radius: 20px 20px 0 0;
-    }
-
-    .lang-switch {
-      text-align: right;
-      margin: 10px;
-    }
-
-    .lang-switch button {
-      background-color: #FAEDCB;
-      border: none;
-      padding: 8px 12px;
-      border-radius: 10px;
-      cursor: pointer;
-      font-weight: bold;
+      border-radius: 12px;
+      margin-bottom: 20px;
     }
 
     label {
-      font-weight: bold;
-      margin-top: 15px;
+      font-weight: 600;
+      margin-top: 18px;
       display: block;
+      font-size: 14px;
     }
 
     select,
@@ -59,22 +75,27 @@
       width: 100%;
       padding: 12px;
       margin-top: 6px;
-      border-radius: 12px;
-      border: 1px solid #CCC;
-      font-size: 14px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      font-size: 15px;
+      background: #f9f9f9;
     }
 
-    button {
-      background-color: #FAEDCB;
-      color: black;
+    button#confirmBtn {
+      background-color: #faedcb;
+      color: #333;
       border: none;
-      padding: 12px;
-      border-radius: 16px;
+      padding: 14px;
+      border-radius: 6px;
       font-size: 16px;
       font-weight: bold;
       cursor: pointer;
-      margin-top: 20px;
+      margin-top: 24px;
       width: 100%;
+    }
+
+    button#confirmBtn:hover {
+      background-color: #f5e6b4;
     }
 
     .hidden {
@@ -82,29 +103,31 @@
     }
 
     .whatsapp-message {
-      margin-top: 20px;
-      padding: 15px;
-      background-color: #F0F0F0;
-      border-radius: 12px;
+      margin-top: 24px;
+      padding: 16px;
+      background-color: #f1f1f1;
+      border-radius: 10px;
       font-size: 16px;
+      line-height: 1.5;
     }
 
     .whatsapp-message a {
       text-decoration: none;
-      color: green;
+      color: var(--accent);
       font-weight: bold;
     }
 
     .price-tag {
-      font-weight: bold;
-      color: #007B5E;
+      font-weight: 600;
+      color: var(--accent);
       margin-top: 8px;
+      font-size: 16px;
     }
   </style>
 </head>
 <body>
   <div class="lang-switch">
-    <button onclick="toggleLanguage()">🌐 Toggle Language</button>
+    <button onclick="toggleLanguage()">🌐</button>
   </div>
 
   <div class="container">
@@ -120,7 +143,7 @@
       <div class="price-tag" id="priceDisplay">AED 125</div>
 
       <label for="lessonDate" data-en="📅 Select Date:" data-ar="📅 اختر التاريخ:">📅 Select Date:</label>
-      <input type="date" id="lessonDate" />
+      <input type="date" id="lessonDate" oninput="validateDay()" />
 
       <label for="lessonTime" data-en="🕒 Select Time:" data-ar="🕒 اختر الوقت:">🕒 Select Time:</label>
       <input type="time" id="lessonTime" />
@@ -139,17 +162,21 @@
         <label for="schoolName" data-en="🏫 School Name:" data-ar="🏫 اسم المدرسة:">🏫 School Name:</label>
         <input type="text" id="schoolName" placeholder="Enter school name" />
 
-        <label for="paymentMethod" data-en="💳 Payment Method:" data-ar="💳 طريقة الدفع:">💳 Payment Method:</label>
-        <select id="paymentMethod" onchange="handlePaymentMethod()">
-          <option value="">Choose</option>
-          <option value="cash">Cash 💰</option>
-          <option value="card">Card 💳</option>
+        <label for="paymentMethod" data-en="💳 Payment Method:" data-ar="💳 وسيلة الدفع:">💳 Payment Method:</label>
+        <select id="paymentMethod">
+          <option value="cash">Cash</option>
+          <option value="card">Card</option>
         </select>
       </div>
 
       <div id="cardPaymentDiv" class="hidden">
         <p><strong>🏦 Bank:</strong> <span id="bankName">—</span></p>
         <p><strong>🔢 IBAN:</strong> <span id="ibanNumber">—</span></p>
+      </div>
+
+      <div id="teacherNumberDiv" class="hidden">
+        <label for="teacherNumber" data-en="📱 Teacher WhatsApp Number:" data-ar="📱 رقم واتساب المعلم:">📱 Teacher WhatsApp Number:</label>
+        <input type="text" id="teacherNumber" readonly />
       </div>
 
       <button onclick="confirmBooking()" id="confirmBtn">✅ Confirm Booking</button>
@@ -159,11 +186,7 @@
   </div>
 
   <script>
-    const priceMap = {
-      "60": 125,
-      "90": 150,
-      "120": 175
-    };
+    const priceMap = { "60": 125, "90": 150, "120": 175 };
 
     function updatePrice() {
       const duration = document.getElementById("duration").value;
@@ -174,30 +197,22 @@
       const sessionType = document.getElementById('sessionType').value;
       const locationDiv = document.getElementById('locationDiv');
       const cardPaymentDiv = document.getElementById('cardPaymentDiv');
+      const teacherNumberDiv = document.getElementById('teacherNumberDiv');
 
       if (sessionType === "in-person") {
         locationDiv.classList.remove("hidden");
         cardPaymentDiv.classList.add("hidden");
+        teacherNumberDiv.classList.remove("hidden");
       } else if (sessionType === "online") {
         locationDiv.classList.add("hidden");
         cardPaymentDiv.classList.remove("hidden");
+        teacherNumberDiv.classList.remove("hidden");
         document.getElementById("bankName").textContent = "Teacher Bank";
         document.getElementById("ibanNumber").textContent = "AE000000000000000000000";
       } else {
         locationDiv.classList.add("hidden");
         cardPaymentDiv.classList.add("hidden");
-      }
-    }
-
-    function handlePaymentMethod() {
-      const method = document.getElementById('paymentMethod').value;
-      const cardPaymentDiv = document.getElementById('cardPaymentDiv');
-      if (method === "card") {
-        cardPaymentDiv.classList.remove("hidden");
-        document.getElementById("bankName").textContent = "Teacher Bank";
-        document.getElementById("ibanNumber").textContent = "AE000000000000000000000";
-      } else {
-        cardPaymentDiv.classList.add("hidden");
+        teacherNumberDiv.classList.add("hidden");
       }
     }
 
@@ -208,6 +223,7 @@
       const sessionType = document.getElementById('sessionType').value;
       const location = document.getElementById('locationLink').value;
       const schoolName = document.getElementById('schoolName').value;
+      const paymentMethod = document.getElementById('paymentMethod')?.value;
 
       const teacher = JSON.parse(localStorage.getItem("teacherInfo"));
 
@@ -225,7 +241,9 @@
       let message = `Hello ${teacher.name}, I booked a ${duration}-minute ${sessionType} session on ${date} at ${time}.`;
 
       if (sessionType === "in-person") {
-        message += `\nLocation: ${location}\nSchool: ${schoolName}`;
+        message += `\nLocation: ${location}\nSchool: ${schoolName}\nPayment: ${paymentMethod}`;
+      } else {
+        message += `\nPayment: Card`;
       }
 
       message += `\nPrice: AED ${price}`;
@@ -257,6 +275,20 @@
       }
     }
 
+    function validateDay() {
+      const teacher = JSON.parse(localStorage.getItem("teacherInfo"));
+      if (!teacher || !teacher.availableDays) return;
+
+      const dateInput = document.getElementById("lessonDate");
+      const selectedDate = new Date(dateInput.value);
+      const selectedDay = selectedDate.getDay(); // 0 = Sunday ... 6 = Saturday
+
+      if (!teacher.availableDays.includes(selectedDay)) {
+        alert("❌ The teacher is not available on this day. Please choose another date.");
+        dateInput.value = "";
+      }
+    }
+
     function toggleLanguage() {
       const currentDir = document.body.style.direction || 'ltr';
       const newDir = currentDir === 'rtl' ? 'ltr' : 'rtl';
@@ -274,9 +306,13 @@
 
     updatePrice();
     checkBookingStatus();
+
+    const teacher = JSON.parse(localStorage.getItem("teacherInfo"));
+    if (teacher && teacher.number) {
+      document.getElementById("teacherNumber").value = teacher.number;
+    }
+
     setInterval(checkBookingStatus, 60000);
   </script>
 </body>
 </html>
-
-
