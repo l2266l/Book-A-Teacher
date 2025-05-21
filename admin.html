@@ -333,12 +333,12 @@
       const tdCert = document.createElement("td");
       if (certURL) {
         const imgCert = document.createElement("img");
-        imgCert.src = certURL;
-        imgCert.alt = `Certificate of ${name}`;
         imgCert.className = "preview";
+        imgCert.src = certURL;
+        imgCert.alt = `University certificate for ${name}`;
         tdCert.appendChild(imgCert);
       } else {
-        tdCert.textContent = "Not uploaded";
+        tdCert.textContent = "No certificate";
         tdCert.style.color = "#888";
       }
       tr.appendChild(tdCert);
@@ -346,36 +346,35 @@
       // Payment Receipt Image
       const tdPayment = document.createElement("td");
       if (paymentURL) {
-        const imgPay = document.createElement("img");
-        imgPay.src = paymentURL;
-        imgPay.alt = `Payment Receipt of ${name}`;
-        imgPay.className = "preview";
-        tdPayment.appendChild(imgPay);
+        const imgPayment = document.createElement("img");
+        imgPayment.className = "preview";
+        imgPayment.src = paymentURL;
+        imgPayment.alt = `Payment receipt for ${name}`;
+        tdPayment.appendChild(imgPayment);
       } else {
-        tdPayment.textContent = "Not uploaded";
+        tdPayment.textContent = "No payment";
         tdPayment.style.color = "#888";
       }
       tr.appendChild(tdPayment);
 
       // Status
       const tdStatus = document.createElement("td");
-      const statusSpan = document.createElement("span");
-      statusSpan.className = `status-badge ${approved ? "approved" : "pending"}`;
-      statusSpan.textContent = approved ? "Approved" : "Pending";
-      tdStatus.appendChild(statusSpan);
+      tdStatus.className = "status-badge " + (approved ? "approved" : "pending");
+      tdStatus.textContent = approved ? "Approved" : "Pending";
       tr.appendChild(tdStatus);
 
-      // Action (approve / undo)
+      // Action button
       const tdAction = document.createElement("td");
       const btn = document.createElement("button");
-      btn.className = `approve-btn ${approved ? "undo" : "approve"}`;
-      btn.textContent = approved ? "Undo Approve" : "Approve";
-      btn.setAttribute("aria-label", `${btn.textContent} ${name}`);
-
+      btn.className = "approve-btn " + (approved ? "undo" : "approve");
+      btn.textContent = approved ? "Undo Approval" : "Approve";
+      btn.setAttribute("aria-label", approved ? `Undo approval for ${name}` : `Approve ${name}`);
       btn.addEventListener("click", () => {
-        toggleApproval(index);
+        // Toggle approval
+        teachers[index].approved = !teachers[index].approved;
+        saveData("teachers", teachers);
+        renderTeachersTable();
       });
-
       tdAction.appendChild(btn);
       tr.appendChild(tdAction);
 
@@ -383,43 +382,26 @@
     });
   }
 
-  // Toggle approval status and save
-  function toggleApproval(index) {
-    const teachers = loadData("teachers") || [];
-    if (!teachers[index]) return;
-
-    teachers[index].approved = !teachers[index].approved;
-    saveData("teachers", teachers);
-
-    renderTeachersTable();
-  }
-
-  // Handle login
-  loginBtn.addEventListener("click", () => {
-    const entered = passwordInput.value.trim();
-    if (entered === ADMIN_PASSWORD) {
+  // Login function
+  function login() {
+    const val = passwordInput.value.trim();
+    if (val === ADMIN_PASSWORD) {
+      loginError.style.display = "none";
       loginSection.style.display = "none";
       adminContent.style.display = "block";
-      loginError.style.display = "none";
-      passwordInput.value = "";
       renderCounts();
       renderTeachersTable();
     } else {
       loginError.style.display = "block";
-      passwordInput.value = "";
       passwordInput.focus();
     }
-  });
+  }
 
-  // Optional: allow Enter key on password input
-  passwordInput.addEventListener("keyup", (e) => {
-    if (e.key === "Enter") {
-      loginBtn.click();
-    }
+  // Event listeners
+  loginBtn.addEventListener("click", login);
+  passwordInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") login();
   });
-
-  // On page load, check if admin is logged in (optional)
-  // For simplicity, no persistent login now
 
 })();
 </script>
