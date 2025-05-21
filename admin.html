@@ -96,7 +96,7 @@
   <div class="admin-content" id="adminContent">
     <h1>Admin Dashboard</h1>
     <p>Welcome, Admin. You now have access to restricted data and controls.</p>
-    
+
     <div class="counter">
       <p>Parent/Student Accounts: <span id="parentCount">0</span></p>
       <p>Teacher Accounts: <span id="teacherCount">0</span></p>
@@ -114,9 +114,7 @@
           <th>Action</th>
         </tr>
       </thead>
-      <tbody>
-        <!-- Teacher rows inserted here -->
-      </tbody>
+      <tbody></tbody>
     </table>
     <p id="noTeachersMsg" style="margin-top: 20px; color: #666; display:none;">No teachers signed up yet.</p>
   </div>
@@ -124,64 +122,60 @@
   <script>
     const adminPassword = "SJ";
 
-    // Prompt for admin password on page load
+    // Prompt for admin password
     const userInput = prompt("Enter admin password:");
     if (userInput !== adminPassword) {
       alert("Access denied.");
-      window.location.href = "index.html"; // Redirect unauthorized users
+      window.location.href = "index.html";
     } else {
       document.getElementById("adminContent").style.display = "block";
     }
 
-    // Count website visits, increment on each admin page visit
+    // Track and display visit count
     let visitCount = localStorage.getItem("visitCount") || 0;
     visitCount = Number(visitCount) + 1;
     localStorage.setItem("visitCount", visitCount);
     document.getElementById("visitCount").innerText = visitCount;
 
-    // Load parent/student accounts from localStorage
+    // Get parent/student accounts
     let parentAccounts = [];
     try {
       const storedParents = localStorage.getItem("parents");
       if (storedParents) parentAccounts = JSON.parse(storedParents);
     } catch (e) {
-      console.error("Error parsing parents from localStorage", e);
+      console.error("Failed to parse parents data:", e);
     }
 
-    // Load teacher accounts from localStorage or add dummy if none exist
+    // Get teacher accounts or add dummy
     let teachers = [];
     try {
       const storedTeachers = localStorage.getItem("teachers");
       if (storedTeachers) {
         teachers = JSON.parse(storedTeachers);
       } else {
-        // Add a dummy teacher for first-time use
-        teachers = [
-          {
-            name: "Zahra Al Ali",
-            email: "zahra@univ.com",
-            certificateUrl: "https://example.com/cert.jpg",
-            receiptUrl: "https://example.com/receipt.jpg",
-            approved: false
-          }
-        ];
+        teachers = [{
+          name: "Zahra Al Ali",
+          email: "zahra@univ.com",
+          certificateUrl: "https://example.com/cert.jpg",
+          receiptUrl: "https://example.com/receipt.jpg",
+          approved: false
+        }];
         localStorage.setItem("teachers", JSON.stringify(teachers));
       }
     } catch (e) {
-      console.error("Error parsing teachers from localStorage", e);
+      console.error("Failed to parse teachers data:", e);
     }
 
-    // Update account counters in the dashboard
+    // Update counters
     document.getElementById("parentCount").innerText = parentAccounts.length;
     document.getElementById("teacherCount").innerText = teachers.length;
 
     const teachersTableBody = document.querySelector("#teachersTable tbody");
     const noTeachersMsg = document.getElementById("noTeachersMsg");
 
-    // Helper to escape HTML special characters in strings to prevent XSS
     function escapeHTML(str) {
       if (!str) return "";
-      return str.replace(/[&<>"']/g, function(m) {
+      return str.replace(/[&<>"']/g, function (m) {
         return ({
           '&': '&amp;',
           '<': '&lt;',
@@ -192,15 +186,13 @@
       });
     }
 
-    // Render teachers data into table rows
     function renderTeachers() {
       teachersTableBody.innerHTML = "";
       if (teachers.length === 0) {
         noTeachersMsg.style.display = "block";
         return;
-      } else {
-        noTeachersMsg.style.display = "none";
       }
+      noTeachersMsg.style.display = "none";
 
       teachers.forEach((teacher, index) => {
         const name = escapeHTML(teacher.name || "");
@@ -209,68 +201,47 @@
         const receiptUrl = teacher.receiptUrl || "";
         const approved = !!teacher.approved;
 
-        // Encode URLs safely for the links
         const certLink = certUrl
-          ? `<a href="${encodeURI(certUrl)}" target="_blank" rel="noopener noreferrer">View Certificate</a>`
+          ? `<a href="${encodeURI(certUrl)}" target="_blank">View Certificate</a>`
           : "N/A";
 
         const receiptLink = receiptUrl
-          ? `<a href="${encodeURI(receiptUrl)}" target="_blank" rel="noopener noreferrer">View Receipt</a>`
+          ? `<a href="${encodeURI(receiptUrl)}" target="_blank">View Receipt</a>`
           : "N/A";
 
         const statusBadge = approved
           ? `<span class="status-badge approved">Approved</span>`
           : `<span class="status-badge pending">Pending</span>`;
 
-        const actionBtnText = approved ? "Undo" : "Approve";
-        const actionBtnClass = approved ? "undo" : "approve";
+        const buttonClass = approved ? "undo" : "approve";
+        const buttonText = approved ? "Undo" : "Approve";
 
-        teachersTableBody.insertAdjacentHTML("beforeend", `
+        const row = `
           <tr>
             <td>${name}</td>
             <td>${email}</td>
             <td>${certLink}</td>
             <td>${receiptLink}</td>
             <td>${statusBadge}</td>
-            <td><button class="approve-btn ${actionBtnClass}" data-index="${index}">${actionBtnText}</button></td>
+            <td><button class="approve-btn ${buttonClass}" data-index="${index}">${buttonText}</button></td>
           </tr>
-        `);
+        `;
+        teachersTableBody.insertAdjacentHTML("beforeend", row);
       });
     }
 
-    // Handle approve/undo button clicks using event delegation
     teachersTableBody.addEventListener("click", e => {
       if (e.target.classList.contains("approve-btn")) {
-        const idx = parseInt(e.target.getAttribute("data-index"), 10);
-        if (isNaN(idx) || idx < 0 || idx >= teachers.length) return;
-
-        teachers[idx].approved = !teachers[idx].approved;
-        localStorage.setItem("teachers", JSON.stringify(teachers));
-        renderTeachers();
+        const index = parseInt(e.target.dataset.index);
+        if (!isNaN(index)) {
+          teachers[index].approved = !teachers[index].approved;
+          localStorage.setItem("teachers", JSON.stringify(teachers));
+          renderTeachers();
+        }
       }
     });
 
     renderTeachers();
-
-    // Optional: Example function to add a new teacher with cert + receipt to localStorage
-    // This is just for demo/testing; you would normally add teachers on signup forms elsewhere.
-    /*
-    function addTeacher(name, email, certUrl, receiptUrl) {
-      teachers.push({
-        name,
-        email,
-        certificateUrl: certUrl,
-        receiptUrl: receiptUrl,
-        approved: false
-      });
-      localStorage.setItem("teachers", JSON.stringify(teachers));
-      document.getElementById("teacherCount").innerText = teachers.length;
-      renderTeachers();
-    }
-    // Example usage:
-    // addTeacher("John Doe", "john@example.com", "https://example.com/john_cert.jpg", "https://example.com/john_receipt.jpg");
-    */
-
   </script>
 </body>
 </html>
