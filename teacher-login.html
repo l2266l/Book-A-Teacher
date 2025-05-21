@@ -3,150 +3,227 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Teacher Login</title>
+  <title>Teacher Sign Up</title>
   <style>
     body {
       font-family: Arial, sans-serif;
       background-color: #C9E4DE;
+      padding: 20px;
+      color: black;
+      transition: direction 0.3s ease;
+    }
+    h1 {
       text-align: center;
-      padding: 20px;
-      margin: 0;
+      color: black;
     }
-
-    .login-container {
-      background-color: white;
-      border-radius: 12px;
-      padding: 20px;
-      max-width: 400px;
+    form {
+      max-width: 600px;
       margin: auto;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-      position: relative;
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(27, 73, 101, 0.2);
+      color: black;
     }
-
-    input {
+    label {
       display: block;
+      margin-top: 15px;
+      font-weight: bold;
+      color: black;
+    }
+    input, select {
       width: 100%;
-      padding: 10px;
-      margin: 10px 0;
+      padding: 8px;
+      margin-top: 5px;
+      box-sizing: border-box;
       border-radius: 6px;
       border: 1px solid #ccc;
+      color: black;
+      font-size: 1rem;
     }
-
-    .language-toggle {
-      position: absolute;
-      top: 20px;
-      right: 20px;
-      padding: 8px 14px;
-      background-color: FAEDCB;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: bold;
-      color: #0077cc;
-      box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
-      transition: background-color 0.3s;
-    }
-
-    .language-toggle:hover {
-      background-color: #d0ebff;
-    }
-
-    #submit-button {
+    button {
+      margin-top: 20px;
       background-color: #FAEDCB;
       color: black;
       border: none;
-      padding: 10px;
-      margin-top: 10px;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-
-    #submit-button:hover {
-      background-color: #f4d49a;
-    }
-
-    .signup-section {
-      margin-top: 20px;
-    }
-
-    .signup-text {
-      font-size: 14px;
-      margin-bottom: 8px;
-    }
-
-    .homepage-button {
-      width: 100%;
       padding: 12px;
       font-size: 16px;
-      border: none;
-      border-radius: 10px;
-      background-color: white;
-      color: #0077cc;
+      border-radius: 8px;
       cursor: pointer;
-      transition: background-color 0.3s;
+      width: 100%;
+      font-weight: bold;
+      user-select: none;
+      transition: background-color 0.3s ease;
     }
-
-    .homepage-button:hover {
-      background-color: #d0ebff;
+    button:hover {
+      background-color: #e6d8a5;
+    }
+    #file-name {
+      margin-top: 5px;
+      font-style: italic;
+      color: black;
+    }
+    #lang-toggle {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: #FAEDCB;
+      color: black;
+      border: none;
+      padding: 8px 14px;
+      font-weight: bold;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      max-width: 120px;
+      white-space: nowrap;
+      user-select: none;
+      z-index: 1000;
+      transition: background-color 0.3s ease;
+    }
+    #lang-toggle:hover {
+      background-color: #e6d8a5;
     }
   </style>
 </head>
 <body>
-  <!-- Language Toggle Button -->
-  <button class="language-toggle" onclick="toggleLanguage()" id="langToggleBtn">عربي</button>
 
-  <div class="login-container">
-    <h2 id="login-title">Teacher Login</h2>
+<button id="lang-toggle" aria-label="Toggle Language">عربي</button>
+<h1 data-en="Teacher Sign Up" data-ar="تسجيل المعلمين">Teacher Sign Up</h1>
 
-    <!-- Manual Login -->
-    <form onsubmit="handleManualLogin(event)">
-      <input type="text" placeholder="Full Name" id="fullname-input" required />
-      <input type="email" placeholder="Email" id="email-input" required />
-      <input type="password" placeholder="Password" id="password-input" required />
-      <button type="submit" id="submit-button">Login</button>
-    </form>
+<form id="signup-form" enctype="multipart/form-data" novalidate>
+  <label for="fullname" data-en="Full Name" data-ar="الاسم الكامل">Full Name</label>
+  <input id="fullname" name="fullname" type="text" required
+         data-placeholder-en="Enter your full name" data-placeholder-ar="أدخل اسمك الكامل" />
 
-    <!-- Sign up / Homepage Button -->
-    <div class="signup-section">
-      <div class="signup-text" id="signup-text">Don't have an account?</div>
-      <button class="homepage-button" onclick="location.href='signup-teacher.html'" id="signup-button">Sign Up</button>
-    </div>
-  </div>
+  <label for="email" data-en="Email" data-ar="البريد الإلكتروني">Email</label>
+  <input id="email" name="email" type="email" required
+         data-placeholder-en="Enter your email" data-placeholder-ar="أدخل بريدك الإلكتروني" />
 
-  <script>
-    function handleManualLogin(event) {
-      event.preventDefault();
-      const name = document.getElementById("fullname-input").value;
-      const email = document.getElementById("email-input").value;
+  <label for="password" data-en="Password" data-ar="كلمة المرور">Password</label>
+  <input id="password" name="password" type="password" required minlength="6"
+         data-placeholder-en="Enter password" data-placeholder-ar="أدخل كلمة المرور" />
 
-      // Save user data in localStorage (simulate login)
-      localStorage.setItem("isLoggedIn", "true");
-      localStorage.setItem("userRole", "teacher");
-      localStorage.setItem("userName", name);
-      localStorage.setItem("userEmail", email);
+  <label for="whatsapp" data-en="WhatsApp Number" data-ar="رقم الواتساب">WhatsApp Number</label>
+  <input id="whatsapp" name="whatsapp" type="text" required pattern="^\+?[0-9]{7,15}$"
+         data-placeholder-en="e.g. +971501234567" data-placeholder-ar="مثال: +971501234567" />
 
-      alert("Logged in manually as: " + name);
+  <label for="bank" data-en="Bank Name" data-ar="اسم البنك">Bank Name</label>
+  <input id="bank" name="bank" type="text" required
+         data-placeholder-en="Enter bank name" data-placeholder-ar="أدخل اسم البنك" />
 
-      // Redirect to index.html
-      window.location.href = "index.html";
+  <label for="iban" data-en="IBAN Number" data-ar="رقم الآيبان">IBAN Number</label>
+  <input id="iban" name="iban" type="text" required pattern="^[A-Z0-9]{15,34}$"
+         data-placeholder-en="Enter IBAN" data-placeholder-ar="أدخل رقم الآيبان" />
+
+  <label for="subject-select" data-en="Subject" data-ar="المادة">Subject</label>
+  <select name="subject" required id="subject-select">
+    <option value="" disabled selected data-en="Select Subject" data-ar="اختر المادة">Select Subject</option>
+    <option value="physics">Physics</option>
+    <option value="mathematics">Mathematics</option>
+    <option value="biology">Biology</option>
+    <option value="chemistry">Chemistry</option>
+    <option value="science">Science</option>
+    <option value="arabic">Arabic</option>
+    <option value="english">English</option>
+    <option value="french">French</option>
+    <option value="chinese">Chinese</option>
+    <option value="islamic">Islamic Studies</option>
+  </select>
+
+  <label for="grade-select" data-en="Grade" data-ar="الصف الدراسي">Grade</label>
+  <select name="grade" required id="grade-select">
+    <option value="" disabled selected data-en="Select Grade" data-ar="اختر الصف">Select Grade</option>
+    <option value="Grade1">Grade 1</option>
+    <option value="Grade2">Grade 2</option>
+    <option value="Grade3">Grade 3</option>
+    <option value="Grade4">Grade 4</option>
+    <option value="Grade5">Grade 5</option>
+    <option value="Grade6">Grade 6</option>
+    <option value="Grade7">Grade 7</option>
+    <option value="Grade8">Grade 8</option>
+    <option value="Grade9">Grade 9</option>
+    <option value="Grade10">Grade 10</option>
+    <option value="Grade11">Grade 11</option>
+    <option value="Grade12">Grade 12</option>
+  </select>
+
+  <label for="gender-select" data-en="Gender" data-ar="اللقب">Gender</label>
+  <select name="gender" required id="gender-select">
+    <option value="" disabled selected data-en="Select Title" data-ar="اختر اللقب">Select Title</option>
+    <option value="mr">Mr</option>
+    <option value="ms">Ms</option>
+  </select>
+
+  <label for="certificate-input" data-en="Upload Certificate" data-ar="تحميل الشهادة">Upload Certificate</label>
+  <input id="certificate-input" name="certificate" type="file" accept=".pdf,.jpg,.jpeg,.png" aria-describedby="file-name" />
+  <div id="file-name"></div>
+
+  <button type="submit" data-en="Sign Up" data-ar="تسجيل">Sign Up</button>
+</form>
+
+<script>
+  const langToggle = document.getElementById("lang-toggle");
+  const htmlEl = document.documentElement;
+  let currentLang = "en";
+
+  const subjects = {
+    en: ["Select Subject", "Physics", "Mathematics", "Biology", "Chemistry", "Science", "Arabic", "English", "French", "Chinese", "Islamic Studies"],
+    ar: ["اختر المادة", "الفيزياء", "الرياضيات", "الأحياء", "الكيمياء", "العلوم", "العربية", "الإنجليزية", "الفرنسية", "الصينية", "الدراسات الإسلامية"]
+  };
+
+  const grades = {
+    en: ["Select Grade", "Grade 1", "Grade 2", "Grade 3", "Grade 4", "Grade 5", "Grade 6", "Grade 7", "Grade 8", "Grade 9", "Grade 10", "Grade 11", "Grade 12"],
+    ar: ["اختر الصف", "الصف 1", "الصف 2", "الصف 3", "الصف 4", "الصف 5", "الصف 6", "الصف 7", "الصف 8", "الصف 9", "الصف 10", "الصف 11", "الصف 12"]
+  };
+
+  const genders = {
+    en: ["Select Title", "Mr", "Ms"],
+    ar: ["اختر اللقب", "السيد", "السيدة"]
+  };
+
+  function updateLanguage(lang) {
+    currentLang = lang;
+    htmlEl.lang = lang;
+    htmlEl.dir = lang === "ar" ? "rtl" : "ltr";
+    langToggle.textContent = lang === "ar" ? "English" : "عربي";
+
+    document.querySelectorAll("[data-en]").forEach(el => {
+      el.textContent = lang === "ar" ? el.getAttribute("data-ar") : el.getAttribute("data-en");
+    });
+
+    document.querySelectorAll("input[data-placeholder-en]").forEach(input => {
+      input.placeholder = lang === "ar" ? input.getAttribute("data-placeholder-ar") : input.getAttribute("data-placeholder-en");
+    });
+
+    [...document.getElementById("subject-select").options].forEach((opt, idx) => opt.textContent = subjects[lang][idx]);
+    [...document.getElementById("grade-select").options].forEach((opt, idx) => opt.textContent = grades[lang][idx]);
+    [...document.getElementById("gender-select").options].forEach((opt, idx) => opt.textContent = genders[lang][idx]);
+  }
+
+  langToggle.addEventListener("click", () => {
+    updateLanguage(currentLang === "en" ? "ar" : "en");
+  });
+
+  document.getElementById("certificate-input").addEventListener("change", e => {
+    const fileName = e.target.files[0]?.name || "";
+    document.getElementById("file-name").textContent = fileName;
+  });
+
+  document.getElementById("signup-form").addEventListener("submit", function(e) {
+    e.preventDefault();
+    const form = e.target;
+    if (!form.checkValidity() || !form.subject.value || !form.grade.value || !form.gender.value) {
+      alert(currentLang === "ar" ? "يرجى تعبئة جميع الحقول بشكل صحيح." : "Please fill all fields correctly.");
+      return;
     }
+    alert(currentLang === "ar" ? "تم التسجيل بنجاح! سيتم تحويلك إلى صفحة الاشتراك." : "Signup successful! Redirecting to subscription page.");
+    window.location.href = "subscription.html";
+  });
 
-    let isArabic = false;
+  // Initialize
+  updateLanguage(currentLang);
+</script>
 
-    function toggleLanguage() {
-      isArabic = !isArabic;
-      document.documentElement.lang = isArabic ? "ar" : "en";
-      document.documentElement.dir = isArabic ? "rtl" : "ltr";
-
-      document.getElementById("login-title").innerText = isArabic ? "تسجيل دخول المعلم" : "Teacher Login";
-      document.getElementById("fullname-input").placeholder = isArabic ? "الاسم الكامل" : "Full Name";
-      document.getElementById("email-input").placeholder = isArabic ? "البريد الإلكتروني" : "Email";
-      document.getElementById("password-input").placeholder = isArabic ? "كلمة المرور" : "Password";
-      document.getElementById("submit-button").innerText = isArabic ? "تسجيل الدخول" : "Login";
-      document.getElementById("signup-text").innerText = isArabic ? "لا تملك حسابًا؟" : "Don't have an account?";
-      document.getElementById("signup-button").innerText = isArabic ? "أنشئ حسابًا" : "Sign Up";
-      document.getElementById("langToggleBtn").innerText = isArabic ? "English" : "عربي";
-    }
-  </script>
 </body>
 </html>
