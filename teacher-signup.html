@@ -1,272 +1,241 @@
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
+
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Teacher Sign Up</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title id="page-title">Teacher Sign Up</title>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-storage-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
   <style>
     body {
       font-family: Arial, sans-serif;
-      background-color: #C9E4DE;
+      background-color: #c9e4de;
       padding: 20px;
-      color: black;
-      transition: direction 0.3s ease;
-      margin: 0;
+      direction: ltr;
     }
-    h1 {
-      text-align: center;
-      color: black;
-    }
-    form {
-      max-width: 600px;
-      margin: 30px auto;
+
+    .form-container {
+      max-width: 500px;
+      margin: auto;
       background: white;
       padding: 20px;
       border-radius: 12px;
-      box-shadow: 0 0 10px rgba(27, 73, 101, 0.2);
-      color: black;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
     label {
       display: block;
-      margin-top: 15px;
+      margin-bottom: 8px;
       font-weight: bold;
-      color: black;
     }
-    input, select {
+
+    input,
+    select {
       width: 100%;
-      padding: 8px;
-      margin-top: 5px;
-      box-sizing: border-box;
-      border-radius: 6px;
+      padding: 10px;
+      margin-bottom: 15px;
       border: 1px solid #ccc;
-      color: black;
-      font-size: 1rem;
-      outline-offset: 2px;
+      border-radius: 8px;
     }
-    input:focus, select:focus, button:focus {
-      outline: 2px solid #557A95;
-      outline-offset: 3px;
-    }
+
     button {
-      margin-top: 20px;
-      background-color: #FAEDCB;
-      color: black;
+      padding: 12px 20px;
+      background-color: #faedcb;
       border: none;
-      padding: 12px;
-      font-size: 16px;
       border-radius: 8px;
       cursor: pointer;
-      width: 100%;
       font-weight: bold;
-      user-select: none;
-      transition: background-color 0.3s ease;
+      font-size: 16px;
     }
+
     button:hover {
-      background-color: #e6d8a5;
+      background-color: #ffe8a8;
     }
-    #file-name {
-      margin-top: 5px;
-      font-style: italic;
-      color: black;
-      min-height: 1.2em;
-    }
-    #file-name[aria-live] {
-      /* For screen readers */
-    }
-    #lang-toggle {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      background: #FAEDCB;
-      color: black;
-      border: none;
-      padding: 8px 14px;
-      font-weight: bold;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 14px;
-      max-width: 120px;
-      white-space: nowrap;
-      user-select: none;
-      z-index: 1000;
-      transition: background-color 0.3s ease;
-    }
-    #lang-toggle:hover {
-      background-color: #e6d8a5;
-    }
-    #error-message {
-      color: red;
-      font-weight: bold;
-      margin-top: 10px;
-      text-align: center;
+
+    #language-toggle {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      font-size: 16px;
+      padding: 10px 16px;
     }
   </style>
 </head>
+
 <body>
+  <button id="language-toggle">العربية</button>
+  <div class="form-container">
+    <h2 id="form-title">Teacher Sign Up</h2>
+    <form id="signup-form">
+      <label id="name-label">Full Name</label>
+      <input type="text" id="name" required />
 
-<button id="lang-toggle" aria-label="Toggle Language">عربي</button>
-<h1 data-en="Teacher Sign Up" data-ar="تسجيل المعلمين">Teacher Sign Up</h1>
+      <label id="email-label">Email</label>
+      <input type="email" id="email" required />
 
-<form id="signup-form" enctype="multipart/form-data" novalidate>
-  <label for="fullname" data-en="Full Name" data-ar="الاسم الكامل">Full Name</label>
-  <input id="fullname" name="fullname" type="text" required
-         data-placeholder-en="Enter your full name" data-placeholder-ar="أدخل اسمك الكامل" />
+      <label id="password-label">Password</label>
+      <input type="password" id="password" required />
 
-  <label for="email" data-en="Email" data-ar="البريد الإلكتروني">Email</label>
-  <input id="email" name="email" type="email" required
-         data-placeholder-en="Enter your email" data-placeholder-ar="أدخل بريدك الإلكتروني" />
+      <label id="whatsapp-label">WhatsApp Number</label>
+      <input type="text" id="whatsapp" required />
 
-  <label for="password" data-en="Password" data-ar="كلمة المرور">Password</label>
-  <input id="password" name="password" type="password" required minlength="6"
-         data-placeholder-en="Enter password" data-placeholder-ar="أدخل كلمة المرور" />
+      <label id="bank-label">Bank Name</label>
+      <input type="text" id="bank" required />
 
-  <label for="whatsapp" data-en="WhatsApp Number" data-ar="رقم الواتساب">WhatsApp Number</label>
-  <input id="whatsapp" name="whatsapp" type="text" required pattern="^\+?[0-9]{7,15}$"
-         data-placeholder-en="e.g. +971501234567" data-placeholder-ar="مثال: +971501234567" />
+      <label id="iban-label">IBAN</label>
+      <input type="text" id="iban" required />
 
-  <label for="bank" data-en="Bank Name" data-ar="اسم البنك">Bank Name</label>
-  <input id="bank" name="bank" type="text" required
-         data-placeholder-en="Enter bank name" data-placeholder-ar="أدخل اسم البنك" />
+      <label id="title-label">Title</label>
+      <select id="title">
+        <!-- Initial mixed labels, untranslated until toggle -->
+        <option value="Ms">Ms</option>
+        <option value="Mr">Mr</option>
+      </select>
 
-  <label for="iban" data-en="IBAN Number" data-ar="رقم الآيبان">IBAN Number</label>
-  <input id="iban" name="iban" type="text" required pattern="^[A-Z0-9]{15,34}$"
-         data-placeholder-en="Enter IBAN" data-placeholder-ar="أدخل رقم الآيبان" />
+      <label id="subject-label">Subject</label>
+      <select id="subject">
+        <option value="Mathematics">Mathematics</option>
+        <option value="Physics">Physics</option>
+        <option value="Biology">Biology</option>
+        <option value="Chemistry">Chemistry</option>
+        <option value="Science">Science</option>
+        <option value="Arabic">Arabic</option>
+        <option value="English">English</option>
+        <option value="French">French</option>
+        <option value="Chinese">Chinese</option>
+        <option value="Islamic">Islamic</option>
+      </select>
 
-  <label for="subject-select" data-en="Subject" data-ar="المادة">Subject</label>
-  <select name="subject" required id="subject-select"></select>
+      <label id="grade-label">Grade</label>
+      <select id="grade">
+        <option value="Grade 1">Grade 1</option>
+        <option value="Grade 2">Grade 2</option>
+        <option value="Grade 3">Grade 3</option>
+        <option value="Grade 4">Grade 4</option>
+        <option value="Grade 5">Grade 5</option>
+        <option value="Grade 6">Grade 6</option>
+        <option value="Grade 7">Grade 7</option>
+        <option value="Grade 8">Grade 8</option>
+        <option value="Grade 9">Grade 9</option>
+        <option value="Grade 10">Grade 10</option>
+        <option value="Grade 11">Grade 11</option>
+        <option value="Grade 12">Grade 12</option>
+      </select>
 
-  <label for="grade-select" data-en="Grade" data-ar="الصف الدراسي">Grade</label>
-  <select name="grade" required id="grade-select"></select>
+      <label id="certificate-label">Upload Certificate</label>
+      <input type="file" id="certificate" accept="application/pdf,image/*" required />
 
-  <label for="gender-select" data-en="Gender" data-ar="اللقب">Gender</label>
-  <select name="gender" required id="gender-select"></select>
+      <div style="text-align: center;">
+       <button type="submit" id="submit-button">Sign Up</button>
+      </div>
 
-  <label for="certificate-input" data-en="Upload Certificate" data-ar="تحميل الشهادة">Upload Certificate</label>
-  <input id="certificate-input" name="certificate" type="file" accept=".pdf,.jpg,.jpeg,.png" aria-describedby="file-name" required />
-  <div id="file-name" aria-live="polite" aria-atomic="true"></div>
+    </form>
+  </div>
 
-  <button type="submit" data-en="Sign Up" data-ar="تسجيل">Sign Up</button>
-  <div id="error-message"></div>
-</form>
+  <script>
+    const translations = {
+      ar: {
+        "form-title": "تسجيل المعلمين",
+        "name-label": "الاسم الكامل",
+        "email-label": "البريد الإلكتروني",
+        "password-label": "كلمة المرور",
+        "whatsapp-label": "رقم الواتساب",
+        "bank-label": "اسم البنك",
+        "iban-label": "الآيبان",
+        "title-label": "اللقب",
+        "subject-label": "المادة",
+        "grade-label": "الصف",
+        "certificate-label": "تحميل الشهادة",
+        "submit-button": "تسجيل",
+        "language-toggle": "English",
+        "page-title": "تسجيل المعلمين",
+        "title-options": ["الآنسة - معلمة", "السيد - معلم"]
+      },
+      en: {
+        "form-title": "Teacher Sign Up",
+        "name-label": "Full Name",
+        "email-label": "Email",
+        "password-label": "Password",
+        "whatsapp-label": "WhatsApp Number",
+        "bank-label": "Bank Name",
+        "iban-label": "IBAN",
+        "title-label": "Title",
+        "subject-label": "Subject",
+        "grade-label": "Grade",
+        "certificate-label": "Upload Certificate",
+        "submit-button": "Sign Up",
+        "language-toggle": "العربية",
+        "page-title": "Teacher Sign Up",
+        "title-options": ["معلمة", "استاذ"]
+      },
+      subjects: {
+        ar: ["الرياضيات", "الفيزياء", "الأحياء", "الكيمياء", "العلوم", "اللغة العربية", "اللغة الإنجليزية", "اللغة الفرنسية", "اللغة الصينية", "الدراسات الإسلامية"],
+        en: ["Mathematics", "Physics", "Biology", "Chemistry", "Science", "Arabic", "English", "French", "Chinese", "Islamic"]
+      },
+      grades: {
+        ar: ["الصف الأول", "الصف الثاني", "الصف الثالث", "الصف الرابع", "الصف الخامس", "الصف السادس", "الصف السابع", "الصف الثامن", "الصف التاسع", "الصف العاشر", "الصف الحادي عشر", "الصف الثاني عشر"],
+        en: ["Grade 1", "Grade 2", "Grade 3", "Grade 4", "Grade 5", "Grade 6", "Grade 7", "Grade 8", "Grade 9", "Grade 10", "Grade 11", "Grade 12"]
+      }
+    };
 
-<!-- Firebase SDK -->
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.0/firebase-app.js";
-  import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.8.0/firebase-analytics.js";
-  import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.8.0/firebase-auth.js";
-  import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.8.0/firebase-storage.js";
-  import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/11.8.0/firebase-firestore.js";
+    let currentLang = 'en';
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyBF_HWMbMUaetcluFgcPPICjOZt2MBtHro",
-    authDomain: "teacher-signup.firebaseapp.com",
-    projectId: "teacher-signup",
-    storageBucket: "teacher-signup.appspot.com",
-    messagingSenderId: "176055526981",
-    appId: "1:176055526981:web:10453a63f0e5b92888652c",
-    measurementId: "G-4FR5EWKCT0"
-  };
+    document.getElementById('language-toggle').addEventListener('click', () => {
+      currentLang = currentLang === 'en' ? 'ar' : 'en';
+      document.body.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
 
-  const app = initializeApp(firebaseConfig);
-  getAnalytics(app);
+      // Translate all text elements by IDs
+      for (const key in translations[currentLang]) {
+        if (key === 'title-options') continue; // skip title options here
+        const el = document.getElementById(key);
+        if (el) el.textContent = translations[currentLang][key];
+      }
 
-  const auth = getAuth(app);
-  const storage = getStorage(app);
-  const db = getFirestore(app);
+      document.title = translations[currentLang]['page-title'];
 
-  // Language stuff from your code (excluded here for brevity)
-
-  // Elements
-  const form = document.getElementById("signup-form");
-  const fileInput = document.getElementById("certificate-input");
-  const fileNameDisplay = document.getElementById("file-name");
-  const errorMessage = document.getElementById("error-message");
-
-  fileInput.addEventListener("change", () => {
-    if (fileInput.files.length > 0) {
-      fileNameDisplay.textContent = fileInput.files[0].name;
-    } else {
-      fileNameDisplay.textContent = "";
-    }
-  });
-
-  form.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    errorMessage.textContent = "";
-
-    if (!form.checkValidity()) {
-      form.reportValidity();
-      return;
-    }
-
-    // Get form values
-    const fullname = form.fullname.value.trim();
-    const email = form.email.value.trim();
-    const password = form.password.value;
-    const whatsapp = form.whatsapp.value.trim();
-    const bank = form.bank.value.trim();
-    const iban = form.iban.value.trim().toUpperCase();
-    const subject = form.subject.value;
-    const grade = form.grade.value;
-    const gender = form.gender.value;
-    const certificateFile = fileInput.files[0];
-
-    if (!certificateFile) {
-      errorMessage.textContent = currentLang === 'ar' ? "يرجى تحميل الشهادة." : "Please upload your certificate.";
-      return;
-    }
-
-    try {
-      // Create user with email and password
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      const user = userCredential.user;
-
-      // Upload certificate file to storage
-      const certStorageRef = storageRef(storage, `certificates/${user.uid}/${certificateFile.name}`);
-      await uploadBytes(certStorageRef, certificateFile);
-      const certificateURL = await getDownloadURL(certStorageRef);
-
-      // Save user info in Firestore
-      await setDoc(doc(db, "teachers", user.uid), {
-        fullname,
-        email,
-        whatsapp,
-        bank,
-        iban,
-        subject,
-        grade,
-        gender,
-        certificateURL,
-        createdAt: new Date().toISOString()
+      // Translate subject options
+      const subjectSelect = document.getElementById('subject');
+      subjectSelect.querySelectorAll('option').forEach((opt, idx) => {
+        opt.textContent = translations.subjects[currentLang][idx];
       });
 
-      // Redirect to subscription page
-      window.location.href = "subscription.html";
+      // Translate grade options
+      const gradeSelect = document.getElementById('grade');
+      gradeSelect.querySelectorAll('option').forEach((opt, idx) => {
+        opt.textContent = translations.grades[currentLang][idx];
+      });
 
-    } catch (error) {
-      // Show error message
-      let msg = error.message || "Error occurred. Please try again.";
-      if(error.code) {
-        // Customize common errors for better UX
-        if(error.code === "auth/email-already-in-use") {
-          msg = currentLang === "ar" ? "البريد الإلكتروني مستخدم بالفعل." : "Email is already in use.";
-        } else if(error.code === "auth/invalid-email") {
-          msg = currentLang === "ar" ? "البريد الإلكتروني غير صالح." : "Invalid email address.";
-        } else if(error.code === "auth/weak-password") {
-          msg = currentLang === "ar" ? "كلمة المرور ضعيفة. استخدم 6 أحرف على الأقل." : "Weak password. Use at least 6 characters.";
-        }
-      }
-      errorMessage.textContent = msg;
-    }
-  });
+      // Translate title (gender) options ONLY when toggled
+      const titleSelect = document.getElementById('title');
+      const titleOptions = translations[currentLang]['title-options'];
+      titleSelect.querySelectorAll('option').forEach((opt, idx) => {
+        opt.textContent = titleOptions[idx];
+      });
 
-  // Populate selects with your existing data (omitted here for brevity)
-  // ... keep your fillSelects(), setLanguage(), langToggle event, etc.
+      // Update language toggle button text
+      document.getElementById('language-toggle').textContent = translations[currentLang]['language-toggle'];
+    });
 
-</script>
-<script>
-  // Your existing JS for language toggle and select populating here
-  // (Please copy your current language toggle and select fill logic here)
-</script>
+    // Firebase config initialization placeholder (add your config here)
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_AUTH_DOMAIN",
+      databaseURL: "YOUR_DB_URL",
+      projectId: "YOUR_PROJECT_ID",
+      storageBucket: "YOUR_STORAGE_BUCKET",
+      messagingSenderId: "YOUR_MSG_SENDER_ID",
+      appId: "YOUR_APP_ID"
+    };
+    firebase.initializeApp(firebaseConfig);
+  </script>
 </body>
+
 </html>
