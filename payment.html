@@ -148,17 +148,27 @@
       reader.onload = function(event) {
         const receiptBase64 = event.target.result;
 
-        // Simulate saving to localStorage
         const paymentData = {
           plan,
           receipt: receiptBase64,
           receiptName: receiptFile.name,
-          approved: false, // Default not approved
+          approved: false, // pending approval by admin
+          timestamp: new Date().toISOString()
         };
 
-        localStorage.setItem("paymentData", JSON.stringify(paymentData));
+        // Optionally get teacher signup data from localStorage if it exists
+        const teacherSignupData = JSON.parse(localStorage.getItem('teacherSignupData') || '{}');
+
+        const fullData = {
+          teacher: teacherSignupData,
+          payment: paymentData
+        };
+
+        localStorage.setItem("paymentInfo", JSON.stringify(fullData));
 
         alert(isArabic ? "تم إرسال الدفع! الرجاء تسجيل الدخول." : "Payment submitted! Please log in.");
+
+        // Redirect to login page
         window.location.href = "teacher-login.html";
       };
 
