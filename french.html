@@ -11,8 +11,6 @@
       margin: 0;
       padding: 20px;
       text-align: center;
-      position: relative;
-      min-height: 100vh;
     }
 
     h1 {
@@ -42,15 +40,15 @@
       margin: 10px 0;
     }
 
-    .teacher-mode {
-      font-size: 0.9em;
+    .teacher-location {
+      font-size: 1em;
       color: #777;
-      margin-top: 10px;
+      margin: 10px 0;
     }
 
-    .book-button {
+    .chat-button {
       background-color: #FAEDCB;
-      color: #333;
+      color: black;
       padding: 10px 20px;
       border: none;
       border-radius: 6px;
@@ -58,56 +56,42 @@
       font-size: 1em;
     }
 
-    .book-button:hover {
-      background-color: #f0d7a1;
+    .chat-button:hover {
+      background-color: #F5D09A;
     }
 
-    .language-toggle {
+    .language-toggle, .go-back-button {
       position: absolute;
       top: 20px;
-      right: 20px;
       padding: 8px 14px;
-      background-color: white;
       border: none;
       border-radius: 8px;
-      cursor: pointer;
       font-weight: bold;
       color: #0077cc;
+      cursor: pointer;
       box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
       transition: background-color 0.3s;
     }
 
-    .language-toggle:hover {
+    .language-toggle {
+      right: 20px;
+      background-color: #FAEDCB;
+    }
+
+    .language-toggle:hover, .go-back-button:hover {
       background-color: #d0ebff;
     }
 
     .go-back-button {
-      position: absolute;
-      top: 20px;
       left: 20px;
-      padding: 8px 14px;
       background-color: #FAEDCB;
-      border: none;
-      border-radius: 8px;
-      font-weight: bold;
-      color: #0077cc;
-      cursor: pointer;
-      box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
-      transition: background-color 0.3s;
     }
 
-    .go-back-button:hover {
-      background-color: #d0ebff;
-    }
-
-    #teachers-container {
-      min-height: 200px;
-    }
-
-    #no-teachers-msg {
-      color: #777;
-      font-style: italic;
-      margin-top: 50px;
+    .no-teachers {
+      font-size: 1em;
+      color: #555;
+      font-family: Arial, sans-serif;
+      margin-top: 20px;
     }
   </style>
 </head>
@@ -120,136 +104,97 @@
   <button class="language-toggle" onclick="toggleLanguage()" id="langToggleBtn">عربي</button>
   <h1 id="page-title">French Teachers</h1>
 
-  <div id="teachers-container">
-    <!-- Dynamic teacher cards will be inserted here -->
-  </div>
+  <div id="teachers-container"></div>
 
   <script>
     let isArabic = false;
 
-    // Example structure of a teacher object:
-    // {
-    //   name: "Ms. Amina",
-    //   grade: 9,
-    //   mode: "Online & In-person",
-    //   subject: "French"
-    // }
-
-    // Function to translate fixed UI texts
-    function translateUI() {
-      document.getElementById("langToggleBtn").innerText = isArabic ? "English" : "عربي";
-      document.getElementById("page-title").innerText = isArabic ? "معلمين اللغة الفرنسية" : "French Teachers";
-      document.getElementById("goBackBtnText").innerText = isArabic ? "الرجوع" : "Go Back";
-      // Translate no teachers message if visible
-      const noTeachersMsg = document.getElementById("no-teachers-msg");
-      if (noTeachersMsg) {
-        noTeachersMsg.innerText = isArabic ? "لا يوجد معلمين معتمدين لهذا المادة." : "No approved teachers for this subject.";
-      }
+    // Fetch all teachers who chose French and got approved (approved = true)
+    function getApprovedTeachersForSubject(subject) {
+      const allTeachers = JSON.parse(localStorage.getItem("teachers")) || [];
+      return allTeachers.filter(t => t.subject && t.subject.toLowerCase() === subject.toLowerCase() && t.approved === true);
     }
 
-    // Translate teacher card texts dynamically
-    function translateTeacherCard(card, teacher) {
-      const nameEl = card.querySelector('.teacher-name');
-      const gradeEl = card.querySelector('.teacher-grade');
-      const modeEl = card.querySelector('.teacher-mode');
-      const buttonEl = card.querySelector('button');
+    function renderTeachers(subject) {
+      const container = document.getElementById("teachers-container");
+      container.innerHTML = "";
 
-      if (isArabic) {
-        // For names, you might want to store the Arabic version in teacher object or
-        // here is a simple fallback: add "المعلم/ة" prefix
-        let arabicName = teacher.name;
-        if (teacher.name.startsWith("Ms.")) {
-          arabicName = teacher.name.replace("Ms.", "المعلمة");
-        } else if (teacher.name.startsWith("Mr.")) {
-          arabicName = teacher.name.replace("Mr.", "المعلم");
-        }
-        nameEl.innerText = arabicName;
-
-        gradeEl.innerText = `الصف: ${teacher.grade}`;
-        modeEl.innerText = "عن بعد و حضوري"; // hardcoded translation
-        buttonEl.innerText = "محادثة";
-      } else {
-        nameEl.innerText = teacher.name;
-        gradeEl.innerText = `Grade: ${teacher.grade}`;
-        modeEl.innerText = teacher.mode;
-        buttonEl.innerText = "Chat";
-      }
-    }
-
-    // Load teachers from localStorage, filter by subject 'French'
-    function loadTeachers() {
-      const teachersContainer = document.getElementById('teachers-container');
-      teachersContainer.innerHTML = ''; // clear
-
-      // Retrieve all approved teachers from localStorage (assumed stored as 'approvedTeachers')
-      // approvedTeachers = [{name, grade, mode, subject, arabicName?}, ...]
-      let approvedTeachers = JSON.parse(localStorage.getItem('approvedTeachers') || '[]');
-
-      // Filter by French subject
-      let frenchTeachers = approvedTeachers.filter(t => t.subject && t.subject.toLowerCase() === 'french');
-
-      if (frenchTeachers.length === 0) {
-        const msg = document.createElement('div');
-        msg.id = "no-teachers-msg";
-        msg.style.textAlign = 'center';
-        msg.style.marginTop = '50px';
-        msg.style.color = '#777';
-        msg.style.fontStyle = 'italic';
-        msg.innerText = isArabic ? "لا يوجد معلمين معتمدين لهذا المادة." : "No approved teachers for this subject.";
-        teachersContainer.appendChild(msg);
+      const teachers = getApprovedTeachersForSubject(subject);
+      if (teachers.length === 0) {
+        const msg = document.createElement("p");
+        msg.className = "no-teachers";
+        msg.innerText = isArabic ? "لا يوجد معلمين." : "No teachers available.";
+        container.appendChild(msg);
         return;
       }
 
-      frenchTeachers.forEach((teacher, index) => {
-        const card = document.createElement('div');
-        card.className = 'teacher-card';
+      teachers.forEach((teacher) => {
+        const card = document.createElement("div");
+        card.className = "teacher-card";
 
-        card.innerHTML = `
-          <div class="teacher-name">${teacher.name}</div>
-          <div class="teacher-grade">Grade: ${teacher.grade}</div>
-          <div class="teacher-mode">${teacher.mode}</div>
-          <button class="book-button">Chat</button>
-        `;
+        const name = document.createElement("div");
+        name.className = "teacher-name";
+        name.innerText = isArabic ? (teacher.gender === "female" ? "المعلمة " : "الاستاذ ") + teacher.name : (teacher.gender === "female" ? "Ms. " : "Mr. ") + teacher.name;
+        card.appendChild(name);
 
-        // Add chat button event listener
-        card.querySelector('button').addEventListener('click', () => {
-          startChat(teacher.name);
-        });
+        const grade = document.createElement("div");
+        grade.className = "teacher-grade";
+        grade.innerText = isArabic ? `الصف: ${teacher.grade}` : `Grade: ${teacher.grade}`;
+        card.appendChild(grade);
 
-        teachersContainer.appendChild(card);
+        const location = document.createElement("div");
+        location.className = "teacher-location";
+        location.innerText = isArabic ? translateMode(teacher.mode) : teacher.mode;
+        card.appendChild(location);
 
-        // Translate the card if needed
-        translateTeacherCard(card, teacher);
+        const chatBtn = document.createElement("button");
+        chatBtn.className = "chat-button";
+        chatBtn.innerText = isArabic ? "محادثة" : "Chat";
+        chatBtn.onclick = () => startChat((teacher.gender === "female" ? "Ms. " : "Mr. ") + teacher.name);
+        card.appendChild(chatBtn);
+
+        container.appendChild(card);
       });
     }
 
-    // Toggle language between English and Arabic
+    function translateMode(mode) {
+      if (mode === "Online") return "عن بعد";
+      if (mode === "In-Person") return "حضوري";
+      if (mode === "Online & In-Person") return "عن بعد و حضوري";
+      return mode;
+    }
+
+    function startChat(teacherName) {
+      const chat = {
+        teacher: teacherName,
+        time: new Date().toLocaleString()
+      };
+
+      const existingChats = JSON.parse(localStorage.getItem("chats")) || [];
+      existingChats.push(chat);
+      localStorage.setItem("chats", JSON.stringify(existingChats));
+
+      window.location.href = `chat.html?teacher=${encodeURIComponent(teacherName)}`;
+    }
+
     function toggleLanguage() {
       isArabic = !isArabic;
       document.documentElement.lang = isArabic ? "ar" : "en";
       document.documentElement.dir = isArabic ? "rtl" : "ltr";
-      translateUI();
-      loadTeachers();
+
+      document.getElementById("langToggleBtn").innerText = isArabic ? "English" : "عربي";
+      document.getElementById("page-title").innerText = isArabic ? "معلمين اللغة الفرنسية" : "French Teachers";
+      document.getElementById("goBackBtnText").innerText = isArabic ? "الرجوع" : "Go Back";
+
+      renderTeachers("French");
     }
 
-    // On chat button click: save chat and redirect to chat page with teacher param
-    function startChat(teacherName) {
-      let chats = JSON.parse(localStorage.getItem('teacherChats') || '[]');
-      if (!chats.includes(teacherName)) {
-        chats.push(teacherName);
-        localStorage.setItem('teacherChats', JSON.stringify(chats));
-      }
-      window.location.href = `chat.html?teacher=${encodeURIComponent(teacherName)}`;
-    }
-
-    // Go back to all subjects page
     function goBack() {
       window.location.href = "all-subjects.html";
     }
 
-    // Initial load
-    translateUI();
-    loadTeachers();
+    // Initial render
+    renderTeachers("French");
   </script>
 
 </body>
