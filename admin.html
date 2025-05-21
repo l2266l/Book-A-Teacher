@@ -6,11 +6,13 @@
   <style>
     body { font-family: Arial, sans-serif; padding: 20px; background: #f0f0f0; }
     .hidden { display: none; }
-    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; background: white; }
     th, td { border: 1px solid #ccc; padding: 8px; text-align: left; vertical-align: middle; }
     th { background: #eee; }
     button { padding: 5px 10px; cursor: pointer; }
     a { color: blue; text-decoration: underline; }
+    #loading { font-style: italic; margin-top: 10px; }
+    #error { color: red; margin-top: 5px; }
   </style>
 </head>
 <body>
@@ -19,14 +21,15 @@
 
 <!-- Login section -->
 <div id="loginDiv">
-  <label>Password: <input type="password" id="password" /></label>
+  <label>Password: <input type="password" id="password" autocomplete="off" /></label>
   <button onclick="login()">Login</button>
-  <p id="error" style="color:red;"></p>
+  <p id="error"></p>
 </div>
 
 <!-- Dashboard section -->
 <div id="dashboard" class="hidden">
   <h2>Teachers</h2>
+  <div id="loading" class="hidden">Loading teacher data...</div>
   <table>
     <thead>
       <tr>
@@ -41,12 +44,12 @@
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.0/firebase-app.js";
   import { getFirestore, collection, getDocs, updateDoc, doc } from "https://www.gstatic.com/firebasejs/11.8.0/firebase-firestore.js";
 
-  // Your Firebase configuration
+  // Your Firebase configuration (fixed storageBucket domain)
   const firebaseConfig = {
     apiKey: "AIzaSyAlqeoQF71ZXekfwksBOngyinJMK6XYnHE",
     authDomain: "book-a-teacher-b1588.firebaseapp.com",
     projectId: "book-a-teacher-b1588",
-    storageBucket: "book-a-teacher-b1588.firebasestorage.app",
+    storageBucket: "book-a-teacher-b1588.appspot.com",  // fixed here
     messagingSenderId: "829115169239",
     appId: "1:829115169239:web:7c0a3ae8f3578b1f7e7392",
     measurementId: "G-9E0HWWM546"
@@ -56,63 +59,86 @@
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
 
-  // Login function
+  const loginDiv = document.getElementById('loginDiv');
+  const dashboardDiv = document.getElementById('dashboard');
+  const errorP = document.getElementById('error');
+  const loadingDiv = document.getElementById('loading');
+
+  // Clear error message when user types password again
+  document.getElementById('password').addEventListener('input', () => {
+    errorP.textContent = '';
+  });
+
+  // Login function with simple password check
   function login() {
-    const pw = document.getElementById('password').value;
+    const pw = document.getElementById('password').value.trim();
     if (pw === 'SJ') {
-      document.getElementById('loginDiv').classList.add('hidden');
-      document.getElementById('dashboard').classList.remove('hidden');
+      loginDiv.classList.add('hidden');
+      dashboardDiv.classList.remove('hidden');
       loadTeachers();
     } else {
-      document.getElementById('error').textContent = 'Wrong password!';
+      errorP.textContent = 'Wrong password!';
     }
   }
 
-  // Load teachers from Firestore
+  // Load teachers from Firestore and populate table
   async function loadTeachers() {
     const tbody = document.getElementById('teacherList');
     tbody.innerHTML = '';
+    loadingDiv.classList.remove('hidden');
 
     try {
       const querySnapshot = await getDocs(collection(db, "teachers"));
-      querySnapshot.forEach(docSnap => {
-        const t = docSnap.data();
-        const tr = document.createElement('tr');
+      if (querySnapshot.empty) {
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;">No teacher records found.</td></tr>`;
+      } else {
+        querySnapshot.forEach(docSnap => {
+          const t = docSnap.data();
+          const tr = document.createElement('tr');
 
-        // Make sure these fields exist in your Firestore documents:
-        // name, email, subject, paymentReceiptURL, uniCertificateURL, approved (boolean)
-        
-        tr.innerHTML = `
-          <td>${t.name || '-'}</td>
-          <td>${t.email || '-'}</td>
-          <td>${t.subject || '-'}</td>
-          <td>${t.paymentReceiptURL ? `<a href="${t.paymentReceiptURL}" target="_blank">View</a>` : '-'}</td>
-          <td>${t.uniCertificateURL ? `<a href="${t.uniCertificateURL}" target="_blank">View</a>` : '-'}</td>
-          <td>${t.approved ? 'Yes' : 'No'}</td>
-          <td><button onclick="toggleApproval('${docSnap.id}', ${t.approved})">${t.approved ? 'Undo' : 'Approve'}</button></td>
-        `;
+          // Safe fallback for missing fields
+          tr.innerHTML = `
+            <td>${escapeHtml(t.name || '-')}</td>
+            <td>${escapeHtml(t.email || '-')}</td>
+            <td>${escapeHtml(t.subject || '-')}</td>
+            <td>${t.paymentReceiptURL ? `<a href="${t.paymentReceiptURL}" target="_blank" rel="noopener">View</a>` : '-'}</td>
+            <td>${t.uniCertificateURL ? `<a href="${t.uniCertificateURL}" target="_blank" rel="noopener">View</a>` : '-'}</td>
+            <td>${t.approved ? 'Yes' : 'No'}</td>
+            <td><button onclick="toggleApproval('${docSnap.id}', ${t.approved ? 'true' : 'false'})">${t.approved ? 'Undo' : 'Approve'}</button></td>
+          `;
 
-        tbody.appendChild(tr);
-      });
+          tbody.appendChild(tr);
+        });
+      }
     } catch (e) {
       console.error("Error loading teachers:", e);
       alert("Failed to load teacher data.");
+      tbody.innerHTML = `<tr><td colspan="7" style="color:red; text-align:center;">Failed to load teacher data.</td></tr>`;
+    } finally {
+      loadingDiv.classList.add('hidden');
     }
   }
 
-  // Toggle approval status
+  // Toggle approval status and update Firestore
   async function toggleApproval(teacherId, currentStatus) {
     try {
       const teacherRef = doc(db, "teachers", teacherId);
       await updateDoc(teacherRef, { approved: !currentStatus });
-      loadTeachers(); // reload list after update
+      loadTeachers(); // refresh list
     } catch (e) {
       console.error("Error updating approval:", e);
       alert("Failed to update approval status.");
     }
   }
 
-  // Expose functions to global so buttons can access them
+  // Simple HTML escape to avoid injection (optional but safer)
+  function escapeHtml(text) {
+    return text.replace(/[&<>"']/g, function(m) {
+      return ({'&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'}[m]);
+    });
+  }
+
+  // Expose functions globally for inline handlers
   window.login = login;
   window.toggleApproval = toggleApproval;
 </script>
