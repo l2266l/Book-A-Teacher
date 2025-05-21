@@ -41,18 +41,6 @@
       color: black;
       font-size: 1rem;
     }
-    .days-checkboxes label {
-      font-weight: normal;
-      margin-right: 10px;
-      color: black;
-      user-select: none;
-      cursor: pointer;
-    }
-    .days-checkboxes {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
     button {
       margin-top: 20px;
       background-color: #FAEDCB;
@@ -167,17 +155,6 @@
     <option value="ms">Ms</option>
   </select>
 
-  <label id="availability-label" data-en="Availability (Select days)" data-ar="أوقات التوفر (اختر الأيام)">Select workdays</label>
-  <div class="days-checkboxes" id="days-container" role="group" aria-label="Select days">
-    <label><input type="checkbox" value="Sunday" name="days" /> Sunday</label>
-    <label><input type="checkbox" value="Monday" name="days" /> Monday</label>
-    <label><input type="checkbox" value="Tuesday" name="days" /> Tuesday</label>
-    <label><input type="checkbox" value="Wednesday" name="days" /> Wednesday</label>
-    <label><input type="checkbox" value="Thursday" name="days" /> Thursday</label>
-    <label><input type="checkbox" value="Friday" name="days" /> Friday</label>
-    <label><input type="checkbox" value="Saturday" name="days" /> Saturday</label>
-  </div>
-
   <label for="certificate-input" data-en="Upload Certificate" data-ar="تحميل الشهادة">Upload Certificate</label>
   <input id="certificate-input" name="certificate" type="file" accept=".pdf,.jpg,.jpeg,.png" aria-describedby="file-name" />
   <div id="file-name"></div>
@@ -188,7 +165,6 @@
 <script>
   const langToggle = document.getElementById("lang-toggle");
   const htmlEl = document.documentElement;
-  const body = document.body;
   let currentLang = "en";
 
   const subjects = {
@@ -206,9 +182,6 @@
     ar: ["اختر اللقب", "السيد", "السيدة"]
   };
 
-  const daysEn = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-  const daysAr = ["الأحد", "الإثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"];
-
   function updateLanguage(lang) {
     currentLang = lang;
 
@@ -222,99 +195,70 @@
       langToggle.textContent = "عربي";
     }
 
-    // Update all elements with data-en and data-ar attributes
-    document.querySelectorAll("[data-en][data-ar]").forEach(el => {
-      el.textContent = lang === "en" ? el.getAttribute("data-en") : el.getAttribute("data-ar");
+    // Update static texts with data attributes
+    document.querySelectorAll("[data-en]").forEach(el => {
+      el.textContent = lang === "ar" ? el.getAttribute("data-ar") : el.getAttribute("data-en");
     });
 
-    // Update placeholders
-    document.querySelectorAll("input[data-placeholder-en][data-placeholder-ar]").forEach(input => {
-      input.placeholder = lang === "en" ? input.getAttribute("data-placeholder-en") : input.getAttribute("data-placeholder-ar");
+    // Update placeholders for inputs
+    document.querySelectorAll("input[data-placeholder-en]").forEach(input => {
+      input.placeholder = lang === "ar" ? input.getAttribute("data-placeholder-ar") : input.getAttribute("data-placeholder-en");
     });
 
-    // Update select options for subject
+    // Update select options text dynamically
     const subjectSelect = document.getElementById("subject-select");
-    if (subjectSelect) {
-      // Clear existing options
-      subjectSelect.innerHTML = "";
-      subjects[lang].forEach((text, i) => {
-        const opt = document.createElement("option");
-        opt.value = i === 0 ? "" : subjects["en"][i].toLowerCase();
-        opt.textContent = text;
-        if (i === 0) opt.disabled = true;
-        if (i === 0) opt.selected = true;
-        subjectSelect.appendChild(opt);
-      });
-    }
+    [...subjectSelect.options].forEach((option, idx) => {
+      option.textContent = subjects[lang][idx];
+    });
 
-    // Update select options for grade
     const gradeSelect = document.getElementById("grade-select");
-    if (gradeSelect) {
-      gradeSelect.innerHTML = "";
-      grades[lang].forEach((text, i) => {
-        const opt = document.createElement("option");
-        opt.value = i === 0 ? "" : grades["en"][i].toLowerCase().replace(/\s/g, "");
-        opt.textContent = text;
-        if (i === 0) opt.disabled = true;
-        if (i === 0) opt.selected = true;
-        gradeSelect.appendChild(opt);
-      });
-    }
+    [...gradeSelect.options].forEach((option, idx) => {
+      option.textContent = grades[lang][idx];
+    });
 
-    // Update select options for gender
     const genderSelect = document.getElementById("gender-select");
-    if (genderSelect) {
-      genderSelect.innerHTML = "";
-      genders[lang].forEach((text, i) => {
-        const opt = document.createElement("option");
-        opt.value = i === 0 ? "" : (text === "Mr" || text === "السيد" ? "mr" : "ms");
-        opt.textContent = text;
-        if (i === 0) opt.disabled = true;
-        if (i === 0) opt.selected = true;
-        genderSelect.appendChild(opt);
-      });
-    }
-
-    // Update days checkboxes labels
-    const daysContainer = document.getElementById("days-container");
-    if (daysContainer) {
-      const checkboxes = daysContainer.querySelectorAll("input[type=checkbox]");
-      checkboxes.forEach((checkbox, index) => {
-        const label = checkbox.parentElement;
-        label.textContent = lang === "en" ? daysEn[index] : daysAr[index];
-        label.prepend(checkbox);
-      });
-    }
-
-    // Update availability label
-    const availabilityLabel = document.getElementById("availability-label");
-    if (availabilityLabel) {
-      availabilityLabel.textContent = lang === "en" ? "Select workdays" : "أوقات التوفر (اختر الأيام)";
-    }
+    [...genderSelect.options].forEach((option, idx) => {
+      option.textContent = genders[lang][idx];
+    });
   }
 
   langToggle.addEventListener("click", () => {
-    const newLang = currentLang === "en" ? "ar" : "en";
-    updateLanguage(newLang);
+    updateLanguage(currentLang === "en" ? "ar" : "en");
   });
 
-  // Initialize page with English
-  updateLanguage("en");
-
-  // File input: show selected file name
-  const certificateInput = document.getElementById("certificate-input");
-  const fileNameDiv = document.getElementById("file-name");
-
-  certificateInput.addEventListener("change", () => {
-    const file = certificateInput.files[0];
-    if (file) {
-      fileNameDiv.textContent = file.name;
+  // File input display file name
+  const certInput = document.getElementById("certificate-input");
+  const fileNameDisplay = document.getElementById("file-name");
+  certInput.addEventListener("change", () => {
+    if (certInput.files.length > 0) {
+      fileNameDisplay.textContent = certInput.files[0].name;
     } else {
-      fileNameDiv.textContent = "";
+      fileNameDisplay.textContent = "";
     }
   });
 
-  // Optional: form validation, you can add here if needed
+  // Form validation including selects not empty
+  document.getElementById("signup-form").addEventListener("submit", function(e) {
+    const form = e.target;
+    const subject = form.subject.value;
+    const grade = form.grade.value;
+    const gender = form.gender.value;
+
+    if (!subject || !grade || !gender) {
+      alert(currentLang === "ar" ? "يرجى اختيار المادة والصف واللقب." : "Please select Subject, Grade, and Title.");
+      e.preventDefault();
+      return;
+    }
+
+    if (!form.checkValidity()) {
+      alert(currentLang === "ar" ? "يرجى تعبئة الحقول بشكل صحيح." : "Please fill the fields correctly.");
+      e.preventDefault();
+      return;
+    }
+  });
+
+  // Initialize page language
+  updateLanguage("en");
 </script>
 
 </body>
