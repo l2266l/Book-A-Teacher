@@ -102,11 +102,15 @@
   <script>
     let isArabic = false;
 
+    // Function to get approved teachers for the given subject
     function getApprovedTeachersForSubject(subject) {
-      const allTeachers = JSON.parse(localStorage.getItem("approvedTeachers")) || [];
-      return allTeachers.filter(t => t.subject === subject);
+      // Retrieve all teachers from localStorage
+      const allTeachers = JSON.parse(localStorage.getItem("teachers")) || [];
+      // Filter teachers by subject and approved status
+      return allTeachers.filter(t => t.subject === subject && t.approved === true);
     }
 
+    // Render teachers list based on subject and language
     function renderTeachers(subject) {
       const container = document.getElementById("teachers-container");
       container.innerHTML = "";
@@ -114,7 +118,7 @@
       const teachers = getApprovedTeachersForSubject(subject);
       if (teachers.length === 0) {
         const msg = document.createElement("p");
-        msg.innerText = isArabic ? "لا يوجد معلمين حالياً." : "No teachers available currently.";
+        msg.innerText = isArabic ? "لا يوجد معلمين." : "No teachers available.";
         container.appendChild(msg);
         return;
       }
@@ -125,7 +129,7 @@
 
         const name = document.createElement("div");
         name.className = "teacher-name";
-        name.innerText = isArabic ? (teacher.gender === "female" ? "المعلمة " : "الاستاذ ") + teacher.name : (teacher.gender === "female" ? "Ms. " : "Mr. ") + teacher.name;
+        name.innerText = isArabic ? (teacher.gender === "female" ? "المعلمة " : "الأستاذ ") + teacher.name : (teacher.gender === "female" ? "Ms. " : "Mr. ") + teacher.name;
         card.appendChild(name);
 
         const grade = document.createElement("div");
@@ -135,7 +139,7 @@
 
         const location = document.createElement("div");
         location.className = "teacher-location";
-        location.innerText = isArabic ? "عن بعد و حضوري" : "Online & In-Person";
+        location.innerText = isArabic ? translateMode(teacher.mode) : teacher.mode;
         card.appendChild(location);
 
         const chatBtn = document.createElement("button");
@@ -148,6 +152,15 @@
       });
     }
 
+    // Translate mode text between Arabic and English
+    function translateMode(mode) {
+      if (mode === "Online") return "عن بعد";
+      if (mode === "In-Person") return "حضوري";
+      if (mode === "Online & In-Person") return "عن بعد و حضوري";
+      return mode;
+    }
+
+    // Start chat and store chat info in localStorage
     function startChat(teacherName) {
       const chat = {
         teacher: teacherName,
@@ -161,6 +174,7 @@
       window.location.href = `chat.html?teacher=${encodeURIComponent(teacherName)}`;
     }
 
+    // Toggle between Arabic and English language
     function toggleLanguage() {
       isArabic = !isArabic;
       document.documentElement.lang = isArabic ? "ar" : "en";
@@ -173,11 +187,12 @@
       renderTeachers("English");
     }
 
+    // Go back to all-subjects page
     function goBack() {
       window.location.href = "all-subjects.html";
     }
 
-    // On load
+    // Initial load of teachers when page loads
     renderTeachers("English");
   </script>
 
