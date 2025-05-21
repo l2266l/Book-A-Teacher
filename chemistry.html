@@ -34,15 +34,10 @@
       color: #333;
     }
 
-    .teacher-grade,
-    .teacher-mode {
+    .teacher-grade, .teacher-mode {
       font-size: 1em;
       color: #555;
       margin: 10px 0;
-    }
-
-    .teacher-mode {
-      color: #777;
     }
 
     .chat-button {
@@ -60,9 +55,9 @@
       background-color: #f4dfb0;
     }
 
-    .language-toggle,
-    .go-back-button {
+    .language-toggle, .go-back-button {
       position: absolute;
+      top: 20px;
       padding: 8px 14px;
       background-color: #FAEDCB;
       border: none;
@@ -74,19 +69,16 @@
     }
 
     .language-toggle {
-      top: 20px;
       right: 20px;
       color: #333;
     }
 
     .go-back-button {
-      top: 20px;
       left: 20px;
       color: #007ACC;
     }
 
-    .language-toggle:hover,
-    .go-back-button:hover {
+    .language-toggle:hover, .go-back-button:hover {
       background-color: #f4dfb0;
     }
   </style>
@@ -106,53 +98,6 @@
   <script>
     let isArabic = false;
 
-    function loadTeachers() {
-      const container = document.getElementById("teachers-container");
-      container.innerHTML = "";
-      const teachers = JSON.parse(localStorage.getItem("approvedTeachers") || "[]");
-
-      teachers.forEach((teacher, index) => {
-        if (teacher.subject.toLowerCase() !== "chemistry") return;
-
-        const card = document.createElement("div");
-        card.className = "teacher-card";
-
-        const nameDiv = document.createElement("div");
-        nameDiv.className = "teacher-name";
-        nameDiv.innerText = isArabic ? teacher.arabicName || teacher.name : teacher.name;
-        card.appendChild(nameDiv);
-
-        const gradeDiv = document.createElement("div");
-        gradeDiv.className = "teacher-grade";
-        gradeDiv.innerText = isArabic ? "الصف: " + teacher.grade : "Grade: " + teacher.grade;
-        card.appendChild(gradeDiv);
-
-        const modeDiv = document.createElement("div");
-        modeDiv.className = "teacher-mode";
-        modeDiv.innerText = isArabic ? "عن بعد و حضوري" : "Online & In-person";
-        card.appendChild(modeDiv);
-
-        const button = document.createElement("button");
-        button.className = "chat-button";
-        button.innerText = isArabic ? "دردشة" : "Chat";
-        button.onclick = () => startChat(teacher.name);
-        card.appendChild(button);
-
-        container.appendChild(card);
-      });
-    }
-
-    function startChat(teacherName) {
-      let existingChats = JSON.parse(localStorage.getItem("mainChats") || "[]");
-
-      if (!existingChats.includes(teacherName)) {
-        existingChats.push(teacherName);
-        localStorage.setItem("mainChats", JSON.stringify(existingChats));
-      }
-
-      window.location.href = "chat.html?teacher=" + encodeURIComponent(teacherName);
-    }
-
     function toggleLanguage() {
       isArabic = !isArabic;
       document.documentElement.lang = isArabic ? "ar" : "en";
@@ -167,6 +112,68 @@
 
     function goBack() {
       window.location.href = "all-subjects.html";
+    }
+
+    function startChat(teacherName, teacherEmail) {
+      let chats = JSON.parse(localStorage.getItem("mainChats")) || [];
+      if (!chats.find(chat => chat.email === teacherEmail)) {
+        chats.push({ name: teacherName, email: teacherEmail });
+        localStorage.setItem("mainChats", JSON.stringify(chats));
+      }
+      window.location.href = "chat.html?teacher=" + encodeURIComponent(teacherEmail);
+    }
+
+    function loadTeachers() {
+      const container = document.getElementById("teachers-container");
+      container.innerHTML = "";
+
+      // Get all teachers who chose Chemistry AND are approved (approved=true)
+      const teachers = JSON.parse(localStorage.getItem("approvedTeachers") || "[]");
+      const chemistryTeachers = teachers.filter(t => 
+        t.subject.toLowerCase() === "chemistry" && t.approved === true
+      );
+
+      if (chemistryTeachers.length === 0) {
+        container.innerHTML = `<p>${isArabic ? "لا يوجد معلمين." : "No teachers available."}</p>`;
+        return;
+      }
+
+      chemistryTeachers.forEach(teacher => {
+        const card = document.createElement("div");
+        card.className = "teacher-card";
+
+        const name = document.createElement("div");
+        name.className = "teacher-name";
+        name.innerText = isArabic
+          ? (teacher.gender === "female" ? `المعلمة ${teacher.name}` : `الأستاذ ${teacher.name}`)
+          : (teacher.gender === "female" ? `Ms. ${teacher.name}` : `Mr. ${teacher.name}`);
+
+        const grade = document.createElement("div");
+        grade.className = "teacher-grade";
+        grade.innerText = isArabic ? `الصف: ${teacher.grade}` : `Grade: ${teacher.grade}`;
+
+        const mode = document.createElement("div");
+        mode.className = "teacher-mode";
+        if (teacher.mode === "online") {
+          mode.innerText = isArabic ? "عن بعد" : "Online";
+        } else if (teacher.mode === "in-person") {
+          mode.innerText = isArabic ? "حضوري" : "In-person";
+        } else {
+          mode.innerText = isArabic ? "عن بعد و حضوري" : "Online & In-person";
+        }
+
+        const chatBtn = document.createElement("button");
+        chatBtn.className = "chat-button";
+        chatBtn.innerText = isArabic ? "محادثة" : "Chat";
+        chatBtn.onclick = () => startChat(teacher.name, teacher.email);
+
+        card.appendChild(name);
+        card.appendChild(grade);
+        card.appendChild(mode);
+        card.appendChild(chatBtn);
+
+        container.appendChild(card);
+      });
     }
 
     loadTeachers();
