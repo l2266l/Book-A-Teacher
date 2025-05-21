@@ -114,13 +114,13 @@
     function startChat(teacherName, teacherEmail) {
       // Save chat info to localStorage for MainChats
       let chats = JSON.parse(localStorage.getItem("mainChats")) || [];
-      if (!chats.find(chat => chat.name === teacherName)) {
+      if (!chats.find(chat => chat.email === teacherEmail)) {
         chats.push({ name: teacherName, email: teacherEmail });
         localStorage.setItem("mainChats", JSON.stringify(chats));
       }
 
-      // Redirect to chat
-      window.location.href = "chat.html?teacher=" + encodeURIComponent(teacherName);
+      // Redirect to chat, pass email as identifier
+      window.location.href = "chat.html?teacher=" + encodeURIComponent(teacherEmail);
     }
 
     function renderTeachers() {
@@ -129,20 +129,23 @@
 
       const approved = JSON.parse(localStorage.getItem("approvedTeachers")) || [];
 
-      const biologyTeachers = approved.filter(t => t.subject === "Biology");
+      // Filter teachers approved and who teach Biology
+      const biologyTeachers = approved.filter(t => t.subject === "Biology" && t.approved === true);
 
       if (biologyTeachers.length === 0) {
-        container.innerHTML = `<p>${isArabic ? "لا يوجد معلمين حالياً." : "No teachers available right now."}</p>`;
+        container.innerHTML = `<p>${isArabic ? "لا يوجد معلمين." : "No teachers available"}</p>`;
         return;
       }
 
-      biologyTeachers.forEach((teacher, index) => {
+      biologyTeachers.forEach((teacher) => {
         const card = document.createElement("div");
         card.className = "teacher-card";
 
         const name = document.createElement("div");
         name.className = "teacher-name";
-        name.innerText = isArabic ? (teacher.gender === "female" ? `المعلمة ${teacher.name}` : `الأستاذ ${teacher.name}`) : (teacher.gender === "female" ? `Ms. ${teacher.name}` : `Mr. ${teacher.name}`);
+        name.innerText = isArabic
+          ? (teacher.gender === "female" ? `المعلمة ${teacher.name}` : `الأستاذ ${teacher.name}`)
+          : (teacher.gender === "female" ? `Ms. ${teacher.name}` : `Mr. ${teacher.name}`);
 
         const grade = document.createElement("div");
         grade.className = "teacher-grade";
@@ -150,8 +153,12 @@
 
         const mode = document.createElement("div");
         mode.className = "teacher-mode";
-        mode.innerText = isArabic ? (teacher.mode === "online" ? "عن بعد" : teacher.mode === "in-person" ? "حضوري" : "عن بعد و حضوري") : 
-                                    (teacher.mode === "online" ? "Online" : teacher.mode === "in-person" ? "In-person" : "Online & In-person");
+        const modeText = (() => {
+          if (teacher.mode === "online") return isArabic ? "عن بعد" : "Online";
+          if (teacher.mode === "in-person") return isArabic ? "حضوري" : "In-person";
+          return isArabic ? "عن بعد و حضوري" : "Online & In-person";
+        })();
+        mode.innerText = modeText;
 
         const chatBtn = document.createElement("button");
         chatBtn.className = "chat-button";
@@ -166,6 +173,22 @@
         container.appendChild(card);
       });
     }
+
+    // NOTE: When a teacher is approved and added from another page:
+    // Add to localStorage like this (example):
+    /*
+      let approvedTeachers = JSON.parse(localStorage.getItem("approvedTeachers")) || [];
+      approvedTeachers.push({
+        name: "Fatima Ali",
+        email: "fatima@example.com",
+        subject: "Biology",
+        approved: true,
+        grade: "Grade 10",
+        gender: "female",
+        mode: "online"
+      });
+      localStorage.setItem("approvedTeachers", JSON.stringify(approvedTeachers));
+    */
 
     // Initial load
     renderTeachers();
