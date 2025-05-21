@@ -41,6 +41,11 @@
       border: 1px solid #ccc;
       color: black;
       font-size: 1rem;
+      outline-offset: 2px;
+    }
+    input:focus, select:focus, button:focus {
+      outline: 2px solid #557A95;
+      outline-offset: 3px;
     }
     button {
       margin-top: 20px;
@@ -63,6 +68,9 @@
       margin-top: 5px;
       font-style: italic;
       color: black;
+    }
+    #file-name[aria-live] {
+      /* For screen readers */
     }
     #lang-toggle {
       position: fixed;
@@ -128,7 +136,7 @@
 
   <label for="certificate-input" data-en="Upload Certificate" data-ar="تحميل الشهادة">Upload Certificate</label>
   <input id="certificate-input" name="certificate" type="file" accept=".pdf,.jpg,.jpeg,.png" aria-describedby="file-name" />
-  <div id="file-name"></div>
+  <div id="file-name" aria-live="polite" aria-atomic="true"></div>
 
   <button type="submit" data-en="Sign Up" data-ar="تسجيل">Sign Up</button>
 </form>
@@ -183,6 +191,7 @@
       const option = document.createElement("option");
       option.value = values[idx];
       option.textContent = text;
+      if(idx === 0) option.disabled = true;  // disable default prompt option
       select.appendChild(option);
     });
   }
@@ -196,83 +205,80 @@
 
   function updateTexts(lang) {
     document.querySelectorAll("[data-en]").forEach(el => {
-      el.textContent = el.getAttribute(`data-${lang}`) || el.textContent;
+      const enText = el.getAttribute("data-en");
+      const arText = el.getAttribute("data-ar");
+      if (lang === "en") {
+        el.textContent = enText;
+      } else {
+        el.textContent = arText;
+      }
     });
+  }
+
+  function updateLangAttributes(lang) {
+    htmlEl.lang = lang;
+    if(lang === "ar") {
+      htmlEl.dir = "rtl";
+    } else {
+      htmlEl.dir = "ltr";
+    }
+  }
+
+  function setLanguage(lang) {
+    currentLang = lang;
+    updateLangAttributes(lang);
+    updateTexts(lang);
+    updatePlaceholders(lang);
     updateSelect("subject-select", subjects[lang], subjectValues);
     updateSelect("grade-select", grades[lang], gradeValues);
     updateSelect("gender-select", genders[lang], genderValues);
-    updatePlaceholders(lang);
-
     langToggle.textContent = lang === "en" ? "عربي" : "English";
-    htmlEl.dir = lang === "ar" ? "rtl" : "ltr";
   }
 
   langToggle.addEventListener("click", () => {
-    currentLang = currentLang === "en" ? "ar" : "en";
-    updateTexts(currentLang);
+    setLanguage(currentLang === "en" ? "ar" : "en");
   });
 
-  // Initialize form and language on page load
-  updateTexts(currentLang);
+  // Initial setup
+  setLanguage("en");
 
-  const fileInput = document.getElementById("certificate-input");
+  // File input label update
+  const certificateInput = document.getElementById("certificate-input");
   const fileNameDisplay = document.getElementById("file-name");
 
-  fileInput.addEventListener("change", () => {
-    const files = fileInput.files;
-    if (files.length > 0) {
-      fileNameDisplay.textContent = files[0].name;
+  certificateInput.addEventListener("change", () => {
+    if (certificateInput.files.length > 0) {
+      fileNameDisplay.textContent = certificateInput.files[0].name;
     } else {
       fileNameDisplay.textContent = "";
     }
   });
 
-  // Form validation & submission simulation
+  // Form validation and submission handler
   const form = document.getElementById("signup-form");
 
-  form.addEventListener("submit", (e) => {
+  form.addEventListener("submit", e => {
     e.preventDefault();
 
-    // Use HTML5 validation API
+    // Basic validity check (HTML5)
     if (!form.checkValidity()) {
+      alert(currentLang === "en" ? "Please fill out all required fields correctly." : "يرجى تعبئة جميع الحقول المطلوبة بشكل صحيح.");
       form.reportValidity();
       return;
     }
 
-    // Additional pattern validation for whatsapp and IBAN
-    const whatsapp = form.whatsapp.value.trim();
-    const iban = form.iban.value.trim().toUpperCase();
-
-    const whatsappRegex = /^\+?[0-9]{7,15}$/;
-    const ibanRegex = /^[A-Z0-9]{15,34}$/;
-
-    if (!whatsappRegex.test(whatsapp)) {
-      alert(currentLang === "en" ? "Please enter a valid WhatsApp number." : "يرجى إدخال رقم واتساب صحيح.");
-      form.whatsapp.focus();
+    if (certificateInput.files.length === 0) {
+      alert(currentLang === "en" ? "Please upload your certificate." : "يرجى تحميل الشهادة.");
       return;
     }
 
-    if (!ibanRegex.test(iban)) {
-      alert(currentLang === "en" ? "Please enter a valid IBAN number." : "يرجى إدخال رقم آيبان صحيح.");
-      form.iban.focus();
-      return;
-    }
+    // You can add further processing here, like sending data to your server or Firebase
 
-    // Check file uploaded
-    if (!fileInput.files.length) {
-      alert(currentLang === "en" ? "Please upload your certificate." : "يرجى تحميل شهادتك.");
-      fileInput.focus();
-      return;
-    }
-
-    // If all good, show success message
-    alert(currentLang === "en" ? "Sign up successful!" : "تم التسجيل بنجاح!");
-
-    // Here you can add code to send data to your backend or Firebase
-
+    alert(currentLang === "en" ? "Form submitted successfully!" : "تم إرسال النموذج بنجاح!");
     form.reset();
     fileNameDisplay.textContent = "";
   });
 </script>
+
 </body>
 </html>
