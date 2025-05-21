@@ -287,6 +287,10 @@
         await database.ref('teachers/' + safeEmailKey).set(teacherData);
 
         alert("Sign up successful!");
+		
+		        // Redirect to subscription.html after signup success
+        window.location.href = "subscription.html";
+
 
         form.reset();
 
